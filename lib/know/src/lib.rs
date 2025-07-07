@@ -5,7 +5,4 @@ pub mod meta;
 pub mod prelude;
 
 mod error;
-mod feature;
-
 pub use error::*;
-pub use feature::*;
