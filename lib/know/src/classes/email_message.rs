@@ -1,6 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
 use crate::datatypes::{DateTime, EmailAddress, EmailMessageId};
+use alloc::fmt;
 
 /// See: https://datatracker.ietf.org/doc/html/rfc5322#section-3.6
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -17,6 +18,37 @@ pub struct EmailMessage {
     pub id: Option<EmailMessageId>,
     pub in_reply_to: Option<EmailMessageId>,
     pub references: Option<EmailMessageId>,
+}
+
+impl fmt::Display for EmailMessage {
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(ref subject) = self.subject {
+            writeln!(fmt, "✉️  {}", subject)?;
+        }
+        writeln!(fmt, "\tDate: {}", self.date)?;
+        for addr in &self.from {
+            writeln!(fmt, "\tFrom: {}", addr)?;
+        }
+        for addr in &self.to {
+            writeln!(fmt, "\tTo: {}", addr)?;
+        }
+        for addr in &self.cc {
+            writeln!(fmt, "\tCc: {}", addr)?;
+        }
+        for addr in &self.bcc {
+            writeln!(fmt, "\tBcc: {}", addr)?;
+        }
+        if let Some(ref id) = self.id {
+            writeln!(fmt, "\tMessage-ID: {}", id)?;
+        }
+        if let Some(ref in_reply_to) = self.in_reply_to {
+            writeln!(fmt, "\tIn-Reply-To: {}", in_reply_to)?;
+        }
+        if let Some(ref references) = self.references {
+            writeln!(fmt, "\tReferences: {}", references)?;
+        }
+        Ok(())
+    }
 }
 
 #[cfg(feature = "imap-proto")]
