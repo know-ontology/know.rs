@@ -96,3 +96,81 @@ impl TryFrom<&imap_proto::types::Envelope<'_>> for EmailMessage {
         })
     }
 }
+
+#[cfg(feature = "maildir")]
+impl TryFrom<&mut maildir::MailEntry> for EmailMessage {
+    type Error = maildir::MailEntryError;
+
+    fn try_from(input: &mut maildir::MailEntry) -> Result<Self, Self::Error> {
+        let id = Some(input.id().into());
+        let date: DateTime = input.date()?.into();
+        let headers = input.headers()?;
+        Ok(Self {
+            date,
+            from: headers
+                .iter()
+                .filter_map(|header| {
+                    if header.get_key_ref() == "From" {
+                        Some(header.try_into().unwrap())
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+            sender: headers
+                .iter()
+                .filter_map(|header| {
+                    if header.get_key_ref() == "Sender" {
+                        Some(header.try_into().unwrap())
+                    } else {
+                        None
+                    }
+                })
+                .next(),
+            reply_to: headers
+                .iter()
+                .filter_map(|header| {
+                    if header.get_key_ref() == "Reply-To" {
+                        Some(header.try_into().unwrap())
+                    } else {
+                        None
+                    }
+                })
+                .next(),
+            to: headers
+                .iter()
+                .filter_map(|header| {
+                    if header.get_key_ref() == "To" {
+                        Some(header.try_into().unwrap())
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+            cc: headers
+                .iter()
+                .filter_map(|header| {
+                    if header.get_key_ref() == "Cc" {
+                        Some(header.try_into().unwrap())
+                    } else {
+                        None
+                    }
+                })
+                .collect(),
+            bcc: Default::default(),
+            subject: headers
+                .iter()
+                .filter_map(|header| {
+                    if header.get_key_ref() == "Subject" {
+                        Some(header.get_value_utf8().unwrap())
+                    } else {
+                        None
+                    }
+                })
+                .next(),
+            id,
+            in_reply_to: Default::default(),
+            references: Default::default(),
+        })
+    }
+}

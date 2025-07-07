@@ -18,6 +18,18 @@ impl fmt::Display for DateTime {
     }
 }
 
+impl From<i64> for DateTime {
+    fn from(input: i64) -> Self {
+        jiff::Timestamp::new(input, 0).unwrap().into()
+    }
+}
+
+impl From<jiff::Timestamp> for DateTime {
+    fn from(input: jiff::Timestamp) -> Self {
+        Self(jiff::Zoned::new(input, jiff::tz::TimeZone::UTC))
+    }
+}
+
 impl From<jiff::Zoned> for DateTime {
     fn from(input: jiff::Zoned) -> Self {
         Self(input)

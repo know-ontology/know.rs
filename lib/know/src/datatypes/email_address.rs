@@ -34,3 +34,24 @@ impl TryFrom<&imap_proto::Address<'_>> for EmailAddress {
         }
     }
 }
+
+#[cfg(feature = "mailparse")]
+impl TryFrom<&mailparse::MailAddr> for EmailAddress {
+    type Error = mailparse::MailParseError;
+
+    fn try_from(input: &mailparse::MailAddr) -> Result<Self, Self::Error> {
+        match input {
+            mailparse::MailAddr::Single(single) => Ok(Self(single.addr.clone())),
+            mailparse::MailAddr::Group(_group) => todo!(),
+        }
+    }
+}
+
+#[cfg(feature = "mailparse")]
+impl TryFrom<&mailparse::MailHeader<'_>> for EmailAddress {
+    type Error = mailparse::MailParseError;
+
+    fn try_from(input: &mailparse::MailHeader) -> Result<Self, Self::Error> {
+        Ok(Self(input.get_value_utf8()?))
+    }
+}

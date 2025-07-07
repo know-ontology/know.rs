@@ -34,3 +34,5 @@ zeroize = "1.6.0"
 
 # Integrations:
 imap-proto = { version = "0.16", default-features = false, optional = true }
+maildir = { version = "0.6", default-features = false, optional = true }
+mailparse = { version = "0.14", default-features = false, optional = true }
