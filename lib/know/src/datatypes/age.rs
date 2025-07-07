@@ -6,9 +6,18 @@ use alloc::fmt;
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Age<T = u8>(T);
 
+impl<T> Age<T>
+where
+    T: Copy + Into<usize>,
+{
+    pub fn as_usize(&self) -> usize {
+        self.0.into()
+    }
+}
+
 impl fmt::Display for Age {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "🎂 {}y", self.0)
     }
 }
 

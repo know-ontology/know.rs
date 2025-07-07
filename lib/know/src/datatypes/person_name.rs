@@ -13,8 +13,8 @@ impl PersonName {
 }
 
 impl fmt::Display for PersonName {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0)
+    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
+        write!(fmt, "🧑 {}", self.0)
     }
 }
 

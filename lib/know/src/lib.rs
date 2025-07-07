@@ -8,6 +8,7 @@ pub mod classes;
 pub mod datatypes;
 pub mod meta;
 pub mod prelude;
+pub mod traits;
 
 mod error;
 pub use error::*;
