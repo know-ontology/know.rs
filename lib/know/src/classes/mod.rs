@@ -1,5 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
+mod email_message;
 mod event;
 mod file;
 mod group;
@@ -13,6 +14,7 @@ mod software_project;
 mod software_release;
 mod thing;
 
+pub use email_message::*;
 pub use event::*;
 pub use file::*;
 pub use group::*;
