@@ -15,17 +15,22 @@ categories = ["data-structures"]
 publish.workspace = true
 
 [features]
-default = ["chrono", "serde"]
-chrono = ["dep:chrono"]
-serde = ["dep:cfg_eval", "dep:serde", "dep:serde_with"]
+default = ["all", "std"]
+all = ["serde"]
+std = []
+serde = ["jiff/serde", "dep:cfg_eval", "dep:serde", "dep:serde_with"]
 
 [dependencies]
 cfg_eval = { version = "0.1.2", optional = true }
 chrono = { version = "0.4.33", features = ["serde"], optional = true }
 iri-string = { version = "0.7.0", features = ["serde"] }
+jiff = { version = "0.2", default-features = false, features = [] }
 thiserror = "1.0.56"
 serde = { version = "1.0", features = ["derive", "rc"], optional = true }
 serde_with = { version = "3.6.1", optional = true }
 zerocopy = "0.7.11"
 zerocopy-derive = "0.7.11"
 zeroize = "1.6.0"
+
+# Integrations:
+imap-proto = { version = "0.16", default-features = false, optional = true }

@@ -1,7 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
 use super::ThingLike;
-use crate::prelude::*;
+use crate::{datatypes::DateTime, prelude::*};
 use std::{
     fmt::{Debug, Display, Formatter},
     rc::Rc,
@@ -14,10 +14,9 @@ pub trait EventLike: ThingLike {}
 pub struct Event {
     pub name: Option<Name>,
 
-    pub start: Option<Date>,
+    pub start: Option<DateTime>,
 
-    pub end: Option<Date>,
-
+    pub end: Option<DateTime>,
     // TODO: location
     // TODO: organizer
     // TODO: attendees
@@ -67,7 +66,7 @@ impl Debug for EventRef {
 
 impl Display for EventRef {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        match (self.id(), self.name(), self.0.start) {
+        match (self.id(), self.name(), self.0.start.as_ref()) {
             (Some(id), Some(name), Some(date)) => write!(f, "{} {} (#{})", date, name, id),
             (Some(id), Some(name), None) => write!(f, "{} (#{})", name, id),
             (Some(id), None, Some(date)) => write!(f, "{} (#{})", date, id),

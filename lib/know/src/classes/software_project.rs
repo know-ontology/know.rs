@@ -1,7 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
 use super::{PersonRef, ProjectLike, SoftwareLicense, SoftwarePackageRef, ThingLike};
-use crate::prelude::*;
+use crate::{datatypes::EmailAddress, prelude::*};
 use std::str::FromStr;
 
 #[cfg(feature = "serde")]
@@ -35,7 +35,7 @@ pub struct SoftwareProject {
     )]
     pub authors: Vec<PersonRef>,
 
-    pub email: Option<Email>,
+    pub email: Option<EmailAddress>,
 
     pub link: Option<IRI>,
 

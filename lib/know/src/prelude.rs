@@ -2,18 +2,8 @@
 
 use iri_string::types::IriString;
 
-pub type Age = usize; // TODO: use a newtype
-
-#[cfg(feature = "chrono")]
-pub type Date = chrono::NaiveDate;
-
-#[cfg(not(feature = "chrono"))]
-pub type Date = String;
-
-pub type Email = String;
+#[allow(unused_imports)]
+use super::datatypes::*;
 
 pub type IRI = IriString; // TODO: use a newtype
-
 pub type Name = String;
-
-pub type Phone = String;

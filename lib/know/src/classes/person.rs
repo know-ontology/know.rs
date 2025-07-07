@@ -1,7 +1,10 @@
 // This is free and unencumbered software released into the public domain.
 
 use super::{EventRef, ThingLike};
-use crate::prelude::*;
+use crate::{
+    datatypes::{Age, Date, EmailAddress, PersonName, PhoneNumber},
+    prelude::*,
+};
 use std::{
     fmt::{Debug, Display, Formatter},
     rc::Rc,
@@ -12,8 +15,8 @@ use std::{
 use serde_with::serde_as;
 
 pub trait PersonLike: ThingLike {
-    fn nickname(&self) -> Option<&Name>;
-    fn nicknames(&self) -> &Vec<Name>;
+    fn nickname(&self) -> Option<&PersonName>;
+    fn nicknames(&self) -> &Vec<PersonName>;
     fn age(&self) -> Option<Age>;
     fn birthdate(&self) -> Option<Date>;
     fn birth(&self) -> Option<&EventRef>;
@@ -29,24 +32,24 @@ pub trait PersonLike: ThingLike {
     fn children(&self) -> &Vec<PersonRef>;
     fn colleagues(&self) -> &Vec<PersonRef>;
     fn knows(&self) -> &Vec<PersonRef>;
-    fn email(&self) -> Option<&Email>;
-    fn emails(&self) -> &Vec<Email>;
-    fn phone(&self) -> Option<&Phone>;
-    fn phones(&self) -> &Vec<Phone>;
+    fn email(&self) -> Option<&EmailAddress>;
+    fn emails(&self) -> &Vec<EmailAddress>;
+    fn phone(&self) -> Option<&PhoneNumber>;
+    fn phones(&self) -> &Vec<PhoneNumber>;
 }
 
 #[derive(Debug, Clone, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", cfg_eval::cfg_eval, serde_as)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Person {
-    pub name: Name,
+    pub name: PersonName,
 
     #[cfg_attr(
         feature = "serde",
         serde(default, alias = "nickname"),
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
-    pub nicknames: Vec<Name>,
+    pub nicknames: Vec<PersonName>,
 
     pub age: Option<Age>,
 
@@ -112,14 +115,14 @@ pub struct Person {
         serde(default, alias = "email"),
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
-    pub emails: Vec<Email>,
+    pub emails: Vec<EmailAddress>,
 
     #[cfg_attr(
         feature = "serde",
         serde(default, alias = "phone"),
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
-    pub phones: Vec<Phone>,
+    pub phones: Vec<PhoneNumber>,
 }
 
 impl ThingLike for Person {
@@ -128,16 +131,16 @@ impl ThingLike for Person {
     }
 
     fn name(&self) -> Option<&Name> {
-        Some(&self.name)
+        Some(&self.name.as_ref())
     }
 }
 
 impl PersonLike for Person {
-    fn nickname(&self) -> Option<&Name> {
+    fn nickname(&self) -> Option<&PersonName> {
         self.nicknames.first()
     }
 
-    fn nicknames(&self) -> &Vec<Name> {
+    fn nicknames(&self) -> &Vec<PersonName> {
         self.nicknames.as_ref()
     }
 
@@ -147,7 +150,7 @@ impl PersonLike for Person {
 
     fn birthdate(&self) -> Option<Date> {
         match self.birth {
-            Some(ref event) => event.0.start,
+            Some(ref _event) => todo!(), // FIXME: event.0.start.as_ref(),
             None => None,
         }
     }
@@ -211,19 +214,19 @@ impl PersonLike for Person {
         self.knows.as_ref()
     }
 
-    fn email(&self) -> Option<&Email> {
+    fn email(&self) -> Option<&EmailAddress> {
         self.emails.first()
     }
 
-    fn emails(&self) -> &Vec<Email> {
+    fn emails(&self) -> &Vec<EmailAddress> {
         self.emails.as_ref()
     }
 
-    fn phone(&self) -> Option<&Phone> {
+    fn phone(&self) -> Option<&PhoneNumber> {
         self.phones.first()
     }
 
-    fn phones(&self) -> &Vec<Phone> {
+    fn phones(&self) -> &Vec<PhoneNumber> {
         self.phones.as_ref()
     }
 }
@@ -233,7 +236,7 @@ impl FromStr for Person {
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         Ok(Person {
-            name: input.to_string(),
+            name: input.into(),
             ..Default::default()
         })
     }
@@ -256,7 +259,7 @@ impl ThingLike for PersonRef {
 impl Debug for PersonRef {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut result = &mut f.debug_struct("PersonRef");
-        if !self.0.name.is_empty() {
+        if !self.0.name.as_str().is_empty() {
             result = result.field("name", &self.0.name);
         }
         result = match self.0.nicknames.len() {
