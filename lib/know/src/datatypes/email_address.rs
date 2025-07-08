@@ -23,7 +23,26 @@ impl FromStr for EmailAddress {
     type Err = ();
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        Ok(Self(input.to_string())) // TODO: parse "First Last <email@example.com>"
+        let trimmed = input.trim();
+
+        // Check if the input contains angle brackets:
+        if let Some(start) = trimmed.rfind('<') {
+            if let Some(end) = trimmed.rfind('>') {
+                if start < end {
+                    let email = trimmed[start + 1..end].trim();
+                    if !email.is_empty() {
+                        return Ok(EmailAddress(email.to_string()));
+                    }
+                }
+            }
+        }
+
+        // If no angle brackets or parsing failed, treat the whole input as email:
+        if !trimmed.is_empty() {
+            Ok(EmailAddress(trimmed.to_string()))
+        } else {
+            Err(())
+        }
     }
 }
 
@@ -37,7 +56,7 @@ impl TryFrom<&imap_proto::Address<'_>> for EmailAddress {
                 let mailbox = String::from_utf8_lossy(&mailbox);
                 let host = String::from_utf8_lossy(&host);
                 Ok(Self(format!("{}@{}", mailbox, host)))
-            }
+            },
             _ => Err(()),
         }
     }
@@ -60,6 +79,9 @@ impl TryFrom<&mailparse::MailHeader<'_>> for EmailAddress {
     type Error = mailparse::MailParseError;
 
     fn try_from(input: &mailparse::MailHeader) -> Result<Self, Self::Error> {
-        Ok(Self(input.get_value_utf8()?)) // TODO: parse "First Last <email@example.com>"
+        use mailparse::MailParseError;
+        (input.get_value_utf8()?)
+            .parse()
+            .map_err(|_| MailParseError::Generic("invalid email address in header"))
     }
 }
