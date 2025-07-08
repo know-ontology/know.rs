@@ -1,14 +1,15 @@
 # KNOW.rs: The KNOW Framework for Rust
 
 [![License](https://img.shields.io/badge/license-Public%20Domain-blue.svg)](https://unlicense.org)
-[![Compatibility](https://img.shields.io/badge/rust-1.70%2B-blue)](https://crates.io/crates/know)
+[![Compatibility](https://img.shields.io/badge/rust-1.81%2B-blue)](https://blog.rust-lang.org/2024/09/05/Rust-1.81.0/)
 [![Package](https://img.shields.io/crates/v/know)](https://crates.io/crates/know)
+[![Documentation](https://docs.rs/know/badge.svg)](https://docs.rs/know)
 
 🚧 _We are building in public. This is presently under heavy construction._
 
 ## 🛠️ Prerequisites
 
-- [Rust](https://rust-lang.org) 1.70+
+- [Rust](https://rust-lang.org) 1.81+
 
 ## ⬇️ Installation
 
