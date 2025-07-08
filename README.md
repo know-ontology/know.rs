@@ -13,15 +13,15 @@
 
 ## ⬇️ Installation
 
-### Installation via Cargo
+### Installation from Source Code
 
-```console
-$ cargo add know
+```bash
+cargo add know
 ```
 
 ## 👉 Examples
 
-### Importing the framework
+### Importing the Framework
 
 ```rust
 use know::*;
@@ -29,13 +29,14 @@ use know::*;
 
 ## 👨‍💻 Development
 
-```console
-$ git clone https://github.com/know-ontology/know.rs.git
+```bash
+git clone https://github.com/know-ontology/know.rs.git
 ```
 
-- - -
+---
 
-[![Share on Twitter](https://img.shields.io/badge/share%20on-twitter-03A9F4?logo=twitter)](https://twitter.com/share?url=https://github.com/know-ontology/know.rs&text=KNOW.rs:%20The%20KNOW%20Framework%20for%20Rust)
+[![Share on X](https://img.shields.io/badge/share%20on-x-03A9F4?logo=x)](https://x.com/intent/post?url=https://github.com/know-ontology/know.rs&text=KNOW.rs:%20The%20KNOW%20Framework%20for%20Rust)
 [![Share on Reddit](https://img.shields.io/badge/share%20on-reddit-red?logo=reddit)](https://reddit.com/submit?url=https://github.com/know-ontology/know.rs&title=KNOW.rs:%20The%20KNOW%20Framework%20for%20Rust)
-[![Share on Hacker News](https://img.shields.io/badge/share%20on-hacker%20news-orange?logo=ycombinator)](https://news.ycombinator.com/submitlink?u=https://github.com/know-ontology/know.rs&t=KNOW.rs:%20The%20KNOW%20Framework%20for%20Rust)
-[![Share on Facebook](https://img.shields.io/badge/share%20on-facebook-1976D2?logo=facebook)](https://www.facebook.com/sharer/sharer.php?u=https://github.com/know-ontology/know.rs)
+[![Share on Hacker News](https://img.shields.io/badge/share%20on-hn-orange?logo=ycombinator)](https://news.ycombinator.com/submitlink?u=https://github.com/know-ontology/know.rs&t=KNOW.rs:%20The%20KNOW%20Framework%20for%20Rust)
+[![Share on Facebook](https://img.shields.io/badge/share%20on-fb-1976D2?logo=facebook)](https://www.facebook.com/sharer/sharer.php?u=https://github.com/know-ontology/know.rs)
+[![Share on LinkedIn](https://img.shields.io/badge/share%20on-linkedin-3949AB?logo=linkedin)](https://www.linkedin.com/sharing/share-offsite/?url=https://github.com/know-ontology/know.rs)
