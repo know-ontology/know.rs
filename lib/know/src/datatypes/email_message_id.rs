@@ -1,6 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
-use alloc::{borrow::Cow, fmt};
+use alloc::{borrow::Cow, fmt, str::FromStr};
 
 /// See: https://datatracker.ietf.org/doc/html/rfc5322#section-3.6
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -16,6 +16,14 @@ impl EmailMessageId {
 impl fmt::Display for EmailMessageId {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "🆔 {}", self.0)
+    }
+}
+
+impl FromStr for EmailMessageId {
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        Ok(Self(input.to_string()))
     }
 }
 

@@ -20,6 +20,10 @@ all = ["serde"]
 std = []
 serde = ["jiff/serde", "dep:cfg_eval", "dep:serde", "dep:serde_with"]
 
+# Integrations:
+maildir = ["dep:maildir", "mailparse"]
+mailparse = ["dep:mailparse"]
+
 [dependencies]
 cfg_eval = { version = "0.1.2", optional = true }
 chrono = { version = "0.4.33", features = ["serde"], optional = true }

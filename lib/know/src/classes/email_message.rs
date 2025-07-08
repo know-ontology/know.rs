@@ -102,73 +102,49 @@ impl TryFrom<&mut maildir::MailEntry> for EmailMessage {
     type Error = maildir::MailEntryError;
 
     fn try_from(input: &mut maildir::MailEntry) -> Result<Self, Self::Error> {
-        let id = Some(input.id().into());
-        let date: DateTime = input.date()?.into();
-        let headers = input.headers()?;
+        Ok(input.headers()?.try_into()?)
+    }
+}
+
+#[cfg(feature = "mailparse")]
+impl TryFrom<Vec<mailparse::MailHeader<'_>>> for EmailMessage {
+    type Error = mailparse::MailParseError;
+
+    fn try_from(input: Vec<mailparse::MailHeader<'_>>) -> Result<Self, Self::Error> {
+        use mailparse::{MailHeaderMap, MailParseError};
         Ok(Self {
-            date,
-            from: headers
-                .iter()
-                .filter_map(|header| {
-                    if header.get_key_ref() == "From" {
-                        Some(header.try_into().unwrap())
-                    } else {
-                        None
-                    }
-                })
+            date: match input.get_first_value("Date") {
+                None => Err(MailParseError::Generic("missing Date header"))?,
+                Some(date) => date
+                    .parse()
+                    .map_err(|_| MailParseError::Generic("invalid Date header"))?,
+            },
+            from: input
+                .get_all_headers("From")
+                .into_iter()
+                .filter_map(|header| header.try_into().ok())
                 .collect(),
-            sender: headers
-                .iter()
-                .filter_map(|header| {
-                    if header.get_key_ref() == "Sender" {
-                        Some(header.try_into().unwrap())
-                    } else {
-                        None
-                    }
-                })
-                .next(),
-            reply_to: headers
-                .iter()
-                .filter_map(|header| {
-                    if header.get_key_ref() == "Reply-To" {
-                        Some(header.try_into().unwrap())
-                    } else {
-                        None
-                    }
-                })
-                .next(),
-            to: headers
-                .iter()
-                .filter_map(|header| {
-                    if header.get_key_ref() == "To" {
-                        Some(header.try_into().unwrap())
-                    } else {
-                        None
-                    }
-                })
+            sender: input
+                .get_first_value("Sender")
+                .and_then(|header| header.parse().ok()),
+            reply_to: input
+                .get_first_value("Reply-To")
+                .and_then(|header| header.parse().ok()),
+            to: input
+                .get_all_headers("To")
+                .into_iter()
+                .filter_map(|header| header.try_into().ok())
                 .collect(),
-            cc: headers
-                .iter()
-                .filter_map(|header| {
-                    if header.get_key_ref() == "Cc" {
-                        Some(header.try_into().unwrap())
-                    } else {
-                        None
-                    }
-                })
+            cc: input
+                .get_all_headers("Cc")
+                .into_iter()
+                .filter_map(|header| header.try_into().ok())
                 .collect(),
             bcc: Default::default(),
-            subject: headers
-                .iter()
-                .filter_map(|header| {
-                    if header.get_key_ref() == "Subject" {
-                        Some(header.get_value_utf8().unwrap())
-                    } else {
-                        None
-                    }
-                })
-                .next(),
-            id,
+            subject: input.get_first_value("Subject"),
+            id: input
+                .get_first_value("Message-ID")
+                .and_then(|header| header.parse().ok()),
             in_reply_to: Default::default(),
             references: Default::default(),
         })

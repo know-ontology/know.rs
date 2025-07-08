@@ -1,6 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
-use alloc::fmt;
+use alloc::{fmt, str::FromStr};
 
 /// See: https://datatracker.ietf.org/doc/html/rfc5322#section-3.6
 #[derive(Debug, Clone, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
@@ -16,6 +16,14 @@ impl EmailAddress {
 impl fmt::Display for EmailAddress {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "📧 {}", self.0)
+    }
+}
+
+impl FromStr for EmailAddress {
+    type Err = ();
+
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        Ok(Self(input.to_string())) // TODO: parse "First Last <email@example.com>"
     }
 }
 
@@ -52,6 +60,6 @@ impl TryFrom<&mailparse::MailHeader<'_>> for EmailAddress {
     type Error = mailparse::MailParseError;
 
     fn try_from(input: &mailparse::MailHeader) -> Result<Self, Self::Error> {
-        Ok(Self(input.get_value_utf8()?))
+        Ok(Self(input.get_value_utf8()?)) // TODO: parse "First Last <email@example.com>"
     }
 }

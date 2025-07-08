@@ -1,6 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
-use alloc::fmt;
+use alloc::{fmt, str::FromStr};
 
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -15,6 +15,14 @@ impl DateTime {
 impl fmt::Display for DateTime {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
         write!(fmt, "📅 {}", self.0)
+    }
+}
+
+impl FromStr for DateTime {
+    type Err = jiff::Error;
+
+    fn from_str(input: &str) -> Result<Self, Self::Err> {
+        jiff::Zoned::from_str(input).map(|x| x.into())
     }
 }
 
