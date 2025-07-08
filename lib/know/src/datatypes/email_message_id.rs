@@ -23,7 +23,18 @@ impl FromStr for EmailMessageId {
     type Err = ();
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        Ok(Self(input.to_string()))
+        let trimmed = input.trim();
+
+        // Check if the input starts and ends with '<' and '>':
+        if trimmed.starts_with('<') && trimmed.ends_with('>') && trimmed.len() > 2 {
+            let message_id = &trimmed[1..trimmed.len() - 1];
+            if !message_id.is_empty() {
+                return Ok(EmailMessageId(message_id.to_string()));
+            }
+        }
+
+        // If no angle brackets or parsing failed, return error:
+        Err(())
     }
 }
 

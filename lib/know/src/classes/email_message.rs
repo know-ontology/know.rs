@@ -90,7 +90,10 @@ impl TryFrom<&imap_proto::types::Envelope<'_>> for EmailMessage {
                 .subject
                 .as_ref()
                 .map(|x| String::from_utf8_lossy(x).into_owned()),
-            id: input.message_id.as_ref().map(|x| x.into()),
+            id: input
+                .message_id
+                .as_ref()
+                .and_then(|header| String::from_utf8_lossy(header).parse().ok()),
             in_reply_to: Default::default(),
             references: Default::default(),
         })
