@@ -14,7 +14,7 @@ impl DateTime {
 
 impl fmt::Display for DateTime {
     fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "📅 {}", self.0)
+        write!(fmt, "📅 {}", self.0.strftime("%Y-%m-%d %H:%M:%S (%:z)"))
     }
 }
 
