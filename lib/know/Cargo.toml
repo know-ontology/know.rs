@@ -17,7 +17,7 @@ publish.workspace = true
 [features]
 default = ["all", "std"]
 all = ["serde"]
-std = []
+std = ["jiff/std"]
 serde = ["jiff/serde", "dep:cfg_eval", "dep:serde", "dep:serde_with"]
 
 # Integrations:

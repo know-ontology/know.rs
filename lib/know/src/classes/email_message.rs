@@ -102,21 +102,30 @@ impl TryFrom<&mut maildir::MailEntry> for EmailMessage {
     type Error = maildir::MailEntryError;
 
     fn try_from(input: &mut maildir::MailEntry) -> Result<Self, Self::Error> {
-        Ok(input.headers()?.try_into()?)
+        Ok((&input.headers()?).try_into()?)
     }
 }
 
 #[cfg(feature = "mailparse")]
-impl TryFrom<Vec<mailparse::MailHeader<'_>>> for EmailMessage {
+impl TryFrom<&mailparse::ParsedMail<'_>> for EmailMessage {
     type Error = mailparse::MailParseError;
 
-    fn try_from(input: Vec<mailparse::MailHeader<'_>>) -> Result<Self, Self::Error> {
+    fn try_from(input: &mailparse::ParsedMail) -> Result<Self, Self::Error> {
+        (&input.headers).try_into()
+    }
+}
+
+#[cfg(feature = "mailparse")]
+impl TryFrom<&Vec<mailparse::MailHeader<'_>>> for EmailMessage {
+    type Error = mailparse::MailParseError;
+
+    fn try_from(input: &Vec<mailparse::MailHeader<'_>>) -> Result<Self, Self::Error> {
         use mailparse::{MailHeaderMap, MailParseError};
         Ok(Self {
-            date: match input.get_first_value("Date") {
+            date: match input.get_first_header("Date") {
                 None => Err(MailParseError::Generic("missing Date header"))?,
-                Some(date) => date
-                    .parse()
+                Some(header) => header
+                    .try_into()
                     .map_err(|_| MailParseError::Generic("invalid Date header"))?,
             },
             from: input

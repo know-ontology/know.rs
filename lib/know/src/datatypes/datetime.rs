@@ -50,6 +50,20 @@ impl From<&jiff::Zoned> for DateTime {
     }
 }
 
+#[cfg(feature = "mailparse")]
+impl TryFrom<&mailparse::MailHeader<'_>> for DateTime {
+    // `mailparse::MailParseError` if UTF-8 decoding fails
+    // `jiff::Error` if RFC-2822 date parsing fails
+    // See: https://github.com/BurntSushi/jiff/issues/262
+    type Error = Box<dyn core::error::Error>;
+
+    fn try_from(input: &mailparse::MailHeader) -> Result<Self, Self::Error> {
+        let input_str = input.get_value_utf8()?;
+        let input_date = jiff::fmt::rfc2822::parse(&input_str)?;
+        Ok(Self(input_date))
+    }
+}
+
 impl Into<jiff::Zoned> for DateTime {
     fn into(self) -> jiff::Zoned {
         self.0
