@@ -21,6 +21,7 @@ pub struct EmailMessage {
     pub id: Option<EmailMessageId>,
     pub in_reply_to: Option<EmailMessageId>,
     pub references: Option<EmailMessageId>,
+    pub body: Option<String>,
 }
 
 impl EmailMessage {
@@ -127,6 +128,10 @@ impl fmt::Display for DisplayMime<'_, EmailMessage> {
         }
         if let Some(ref references) = self.0.references {
             writeln!(f, "References: {}", references)?;
+        }
+        if let Some(ref body) = self.0.body {
+            writeln!(f)?;
+            writeln!(f, "{}", body)?;
         }
         Ok(())
     }
