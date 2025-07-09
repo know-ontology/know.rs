@@ -1,5 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
+use crate::formatters::{DisplayInline, DisplayMime};
 use alloc::{fmt, str::FromStr};
 
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -10,11 +11,38 @@ impl DateTime {
     pub fn as_zoned(&self) -> &jiff::Zoned {
         &self.0
     }
+
+    pub fn inline(&self) -> DisplayInline<DateTime> {
+        DisplayInline(self)
+    }
+
+    pub fn mime(&self) -> DisplayMime<DateTime> {
+        DisplayMime(self)
+    }
 }
 
 impl fmt::Display for DateTime {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "📅 {}", self.0.strftime("%Y-%m-%d %H:%M:%S (%:z)"))
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.as_zoned().strftime("%Y-%m-%dT%H:%M:%S%:::z"))
+    }
+}
+
+impl fmt::Display for DisplayInline<'_, DateTime> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "📅 {}",
+            self.0.as_zoned().strftime("%Y-%m-%d %H:%M:%S (%:z)")
+        )
+    }
+}
+
+impl fmt::Display for DisplayMime<'_, DateTime> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use jiff::fmt::{rfc2822::DateTimePrinter, StdFmtWrite};
+        static P: DateTimePrinter = DateTimePrinter::new();
+        P.print_zoned(&self.0.as_zoned(), StdFmtWrite(f))
+            .map_err(|_| fmt::Error)
     }
 }
 

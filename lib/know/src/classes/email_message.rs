@@ -1,6 +1,9 @@
 // This is free and unencumbered software released into the public domain.
 
-use crate::datatypes::{DateTime, EmailAddress, EmailMessageId};
+use crate::{
+    datatypes::{DateTime, EmailAddress, EmailMessageId},
+    formatters::{DisplayConcise, DisplayDetailed, DisplayInline, DisplayMime, DisplayOneliner},
+};
 use alloc::fmt;
 
 /// See: https://datatracker.ietf.org/doc/html/rfc5322#section-3.6
@@ -20,32 +23,110 @@ pub struct EmailMessage {
     pub references: Option<EmailMessageId>,
 }
 
+impl EmailMessage {
+    pub fn inline(&self) -> DisplayInline<EmailMessage> {
+        DisplayInline(self)
+    }
+
+    pub fn oneliner(&self) -> DisplayOneliner<EmailMessage> {
+        DisplayOneliner(self)
+    }
+
+    pub fn concise(&self) -> DisplayConcise<EmailMessage> {
+        DisplayConcise(self)
+    }
+
+    pub fn detailed(&self) -> DisplayDetailed<EmailMessage> {
+        DisplayDetailed(self)
+    }
+
+    pub fn mime(&self) -> DisplayMime<EmailMessage> {
+        DisplayMime(self)
+    }
+}
+
 impl fmt::Display for EmailMessage {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        if let Some(ref subject) = self.subject {
-            writeln!(fmt, "✉️  {}", subject)?;
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{}", self.oneliner())
+    }
+}
+
+impl fmt::Display for DisplayInline<'_, EmailMessage> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0.date)?;
+        for addr in &self.0.from {
+            write!(f, " {}:", addr.as_str())?;
         }
-        writeln!(fmt, "\tDate: {}", self.date)?;
-        for addr in &self.from {
-            writeln!(fmt, "\tFrom: {}", addr)?;
+        if let Some(ref subject) = self.0.subject {
+            write!(f, " {}", subject)?;
         }
-        for addr in &self.to {
-            writeln!(fmt, "\tTo: {}", addr)?;
+        Ok(())
+    }
+}
+
+impl fmt::Display for DisplayOneliner<'_, EmailMessage> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "{}", self.0.inline())
+    }
+}
+
+impl fmt::Display for DisplayDetailed<'_, EmailMessage> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(ref subject) = self.0.subject {
+            writeln!(f, "✉️  {}", subject)?;
         }
-        for addr in &self.cc {
-            writeln!(fmt, "\tCc: {}", addr)?;
+        writeln!(f, "\tDate: {}", self.0.date)?;
+        for addr in &self.0.from {
+            writeln!(f, "\tFrom: {}", addr)?;
         }
-        for addr in &self.bcc {
-            writeln!(fmt, "\tBcc: {}", addr)?;
+        for addr in &self.0.to {
+            writeln!(f, "\tTo: {}", addr)?;
         }
-        if let Some(ref id) = self.id {
-            writeln!(fmt, "\tMessage-ID: {}", id)?;
+        for addr in &self.0.cc {
+            writeln!(f, "\tCc: {}", addr)?;
         }
-        if let Some(ref in_reply_to) = self.in_reply_to {
-            writeln!(fmt, "\tIn-Reply-To: {}", in_reply_to)?;
+        for addr in &self.0.bcc {
+            writeln!(f, "\tBcc: {}", addr)?;
         }
-        if let Some(ref references) = self.references {
-            writeln!(fmt, "\tReferences: {}", references)?;
+        if let Some(ref id) = self.0.id {
+            writeln!(f, "\tMessage-ID: {}", id)?;
+        }
+        if let Some(ref in_reply_to) = self.0.in_reply_to {
+            writeln!(f, "\tIn-Reply-To: {}", in_reply_to)?;
+        }
+        if let Some(ref references) = self.0.references {
+            writeln!(f, "\tReferences: {}", references)?;
+        }
+        Ok(())
+    }
+}
+
+impl fmt::Display for DisplayMime<'_, EmailMessage> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        writeln!(f, "Date: {}", self.0.date.mime())?;
+        for addr in &self.0.from {
+            writeln!(f, "From: {}", addr.as_str())?;
+        }
+        for addr in &self.0.to {
+            writeln!(f, "To: {}", addr.as_str())?;
+        }
+        for addr in &self.0.cc {
+            writeln!(f, "Cc: {}", addr.as_str())?;
+        }
+        for addr in &self.0.bcc {
+            writeln!(f, "Bcc: {}", addr.as_str())?;
+        }
+        if let Some(ref subject) = self.0.subject {
+            writeln!(f, "Subject: {}", subject)?;
+        }
+        if let Some(ref id) = self.0.id {
+            writeln!(f, "Message-ID: <{}>", id.as_str())?;
+        }
+        if let Some(ref in_reply_to) = self.0.in_reply_to {
+            writeln!(f, "In-Reply-To: {}", in_reply_to)?;
+        }
+        if let Some(ref references) = self.0.references {
+            writeln!(f, "References: {}", references)?;
         }
         Ok(())
     }

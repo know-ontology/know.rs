@@ -1,5 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
+use crate::formatters::DisplayInline;
 use alloc::{borrow::Cow, fmt};
 
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -10,11 +11,21 @@ impl PersonName {
     pub fn as_str(&self) -> &str {
         &self.0
     }
+
+    pub fn inline(&self) -> DisplayInline<PersonName> {
+        DisplayInline(self)
+    }
 }
 
 impl fmt::Display for PersonName {
-    fn fmt(&self, fmt: &mut fmt::Formatter) -> fmt::Result {
-        write!(fmt, "🧑 {}", self.0)
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.as_str())
+    }
+}
+
+impl fmt::Display for DisplayInline<'_, PersonName> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "🧑 {}", self.0.as_str())
     }
 }
 
