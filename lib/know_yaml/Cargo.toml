@@ -15,10 +15,22 @@ categories = ["data-structures"]
 publish.workspace = true
 
 [features]
-default = []
+default = ["all", "std"]
+all = ["serde"]
+alloc = ["know/alloc"]
+std = ["alloc", "know/std", "serde?/std"]
+
+# Integrations:
+serde = ["know/serde", "dep:serde", "dep:serde_yaml"]
 
 [dependencies]
-thiserror = "1.0.56"
-know = { version = "0.1.1", path = "../know" }
-serde = { version = "1.0", features = ["derive", "rc"] }
-serde_yaml = "0.9.31"
+know = { version = "0.1.4", path = "../know", default-features = false }
+thiserror = "2"
+
+# Integrations:
+serde = { version = "1", default-features = false, features = [
+    "alloc",
+    "derive",
+    "rc",
+], optional = true }
+serde_yaml = { version = "0.9", optional = true }

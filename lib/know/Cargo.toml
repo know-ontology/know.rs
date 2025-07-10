@@ -17,27 +17,65 @@ publish.workspace = true
 [features]
 default = ["all", "std"]
 all = ["serde"]
-std = ["jiff/std"]
-serde = ["jiff/serde", "dep:cfg_eval", "dep:serde", "dep:serde_with"]
+alloc = []
+std = [
+    "alloc",
+    "chrono?/std",
+    "iri-string/std",
+    "jiff/std",
+    "serde?/std",
+    "serde_json?/preserve_order",
+    "serde_json?/std",
+    "serde_with?/std",
+    "zerocopy?/std",
+    "zeroize?/std",
+]
 
 # Integrations:
 maildir = ["dep:maildir", "mailparse"]
 mailparse = ["dep:mailparse"]
+serde = [
+    "chrono?/serde",
+    "iri-string/serde",
+    "jiff/serde",
+    "zeroize?/serde",
+    "dep:cfg_eval",
+    "dep:serde",
+    "dep:serde_json",
+    "dep:serde_with",
+]
 
 [dependencies]
-cfg_eval = { version = "0.1.2", optional = true }
-chrono = { version = "0.4.33", features = ["serde"], optional = true }
-iri-string = { version = "0.7.0", features = ["serde"] }
+cfg_eval = { version = "0.1", optional = true }
+iri-string = { version = "0.7", default-features = false, features = ["alloc"] }
 jiff = { version = "0.2", default-features = false, features = [] }
-thiserror = "1.0.56"
-serde = { version = "1.0", features = ["derive", "rc"], optional = true }
-serde_with = { version = "3.6.1", optional = true }
-zerocopy = "0.7.11"
-zerocopy-derive = "0.7.11"
-zeroize = "1.6.0"
+thiserror = "2"
 
 # Integrations:
+chrono = { version = "0.4", default-features = false, features = [
+    "alloc",
+], optional = true }
 imap-proto = { version = "0.16", default-features = false, optional = true }
 mail-parser = { version = "0.11", default-features = false, optional = true }
 maildir = { version = "0.6", default-features = false, optional = true }
 mailparse = { version = "0.14", default-features = false, optional = true }
+serde = { version = "1", default-features = false, features = [
+    "alloc",
+    "derive",
+    "rc",
+], optional = true }
+serde_json = { version = "1", default-features = false, features = [
+    "alloc",
+], optional = true }
+serde_with = { version = "3.14", default-features = false, features = [
+    "alloc",
+    "macros",
+], optional = true }
+zerocopy = { version = "0.8", default-features = false, features = [
+    "alloc",
+    "derive",
+], optional = true }
+zeroize = { version = "1.8", default-features = false, features = [
+    "alloc",
+    "derive",
+], optional = true }
