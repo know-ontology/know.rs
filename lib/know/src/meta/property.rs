@@ -1,10 +1,10 @@
 // This is free and unencumbered software released into the public domain.
 
 use super::literal::LangStrings;
-use serde::{Deserialize, Serialize};
 
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct Property {
     pub id: Option<String>,
     pub range: Option<String>,

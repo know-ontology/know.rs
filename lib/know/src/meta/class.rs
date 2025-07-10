@@ -1,19 +1,19 @@
 // This is free and unencumbered software released into the public domain.
 
 use super::{literal::LangStrings, property::Property};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
-#[derive(Serialize, Deserialize, Debug)]
-#[serde(rename_all = "camelCase")]
+#[derive(Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(rename_all = "camelCase"))]
 pub struct Class {
     pub id: String,
-    #[serde(rename = "subclass_of")]
+    #[cfg_attr(feature = "serde", serde(rename = "subclass_of"))]
     pub subclass_of: Option<String>,
     pub glyph: Option<String>,
     pub label: Option<LangStrings>,
     pub comment: Option<LangStrings>,
-    #[serde(rename = "see_also")]
+    #[cfg_attr(feature = "serde", serde(rename = "see_also"))]
     pub see_also: Option<LangStrings>,
     pub properties: Option<HashMap<String, Property>>,
 }
