@@ -78,6 +78,33 @@ impl From<&jiff::Zoned> for DateTime {
     }
 }
 
+#[cfg(feature = "mail-parser")]
+impl TryFrom<&mail_parser::DateTime> for DateTime {
+    type Error = jiff::Error;
+
+    fn try_from(input: &mail_parser::DateTime) -> Result<Self, Self::Error> {
+        let ts = jiff::Timestamp::from_second(input.to_timestamp())?;
+        let off = jiff::tz::Offset::from_seconds(
+            (input.tz_hour as i32 * 3_600 + input.tz_minute as i32 * 60)
+                * if input.tz_before_gmt { 1 } else { -1 },
+        )?;
+        let tz = jiff::tz::TimeZone::fixed(off);
+        Ok(Self(jiff::Zoned::new(ts, tz)))
+    }
+}
+
+#[cfg(feature = "mail-parser")]
+impl TryFrom<&mail_parser::HeaderValue<'_>> for DateTime {
+    type Error = jiff::Error;
+
+    fn try_from(input: &mail_parser::HeaderValue) -> Result<Self, Self::Error> {
+        match input {
+            mail_parser::HeaderValue::DateTime(value) => value.try_into(),
+            _ => Err(jiff::Error::from_args(format_args!("not a date header"))), // unreachable?
+        }
+    }
+}
+
 #[cfg(feature = "mailparse")]
 impl TryFrom<&mailparse::MailHeader<'_>> for DateTime {
     // `mailparse::MailParseError` if UTF-8 decoding fails

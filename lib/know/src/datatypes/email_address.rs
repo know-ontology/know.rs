@@ -73,6 +73,21 @@ impl TryFrom<&imap_proto::Address<'_>> for EmailAddress {
     }
 }
 
+#[cfg(feature = "mail-parser")]
+impl TryFrom<&mail_parser::Addr<'_>> for EmailAddress {
+    type Error = ();
+
+    fn try_from(input: &mail_parser::Addr) -> Result<Self, Self::Error> {
+        Ok(Self(
+            input
+                .address
+                .as_ref()
+                .map(ToString::to_string)
+                .ok_or_else(|| ())?,
+        ))
+    }
+}
+
 #[cfg(feature = "mailparse")]
 impl TryFrom<&mailparse::MailAddr> for EmailAddress {
     type Error = mailparse::MailParseError;
