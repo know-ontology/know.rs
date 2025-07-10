@@ -2,7 +2,10 @@
 
 use crate::{
     datatypes::{DateTime, EmailAddress, EmailMessageId},
-    formatters::{DisplayConcise, DisplayDetailed, DisplayInline, DisplayMime, DisplayOneliner},
+    formatters::{
+        DisplayConcise, DisplayDetailed, DisplayInline, DisplayJsonLd, DisplayMime, DisplayOneliner,
+    },
+    traits,
 };
 use alloc::fmt;
 
@@ -44,6 +47,10 @@ impl EmailMessage {
     pub fn mime(&self) -> DisplayMime<EmailMessage> {
         DisplayMime(self)
     }
+
+    pub fn jsonld(&self) -> DisplayJsonLd<EmailMessage> {
+        DisplayJsonLd(self)
+    }
 }
 
 impl fmt::Display for EmailMessage {
@@ -76,7 +83,7 @@ impl fmt::Display for DisplayDetailed<'_, EmailMessage> {
         if let Some(ref subject) = self.0.subject {
             writeln!(f, "✉️  {}", subject)?;
         }
-        writeln!(f, "\tDate: {}", self.0.date)?;
+        writeln!(f, "\tDate: {}", self.0.date.inline())?;
         for addr in &self.0.from {
             writeln!(f, "\tFrom: {}", addr)?;
         }
@@ -134,6 +141,35 @@ impl fmt::Display for DisplayMime<'_, EmailMessage> {
             writeln!(f, "{}", body)?;
         }
         Ok(())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl fmt::Display for DisplayJsonLd<'_, EmailMessage> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        use crate::traits::ToJsonLd;
+        let json = self.0.to_jsonld().unwrap();
+        if cfg!(feature = "pretty") {
+            let mut w = crate::formatters::WriteToFormatter::new(f);
+            colored_json::write_colored_json(&json, &mut w).map_err(|_| fmt::Error)?;
+            writeln!(f)
+        } else {
+            writeln!(f, "{}", json)
+        }
+    }
+}
+
+#[cfg(feature = "serde")]
+impl traits::ToJsonLd for EmailMessage {
+    fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
+        use serde_json::json;
+        Ok(json!({
+            "@id": match self.id {
+                Some(ref id) => id.to_jsonld()?,
+                None => "_:message".into(),
+            },
+            "@type": "EmailMessage",
+        }))
     }
 }
 

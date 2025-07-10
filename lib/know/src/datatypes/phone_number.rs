@@ -1,6 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
-use crate::formatters::DisplayInline;
+use crate::{formatters::DisplayInline, traits};
 use alloc::{borrow::Cow, fmt};
 
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -26,6 +26,13 @@ impl fmt::Display for PhoneNumber {
 impl fmt::Display for DisplayInline<'_, PhoneNumber> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "📞 {}", self.0.as_str())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl traits::ToJsonLd for PhoneNumber {
+    fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
+        Ok(self.0.to_string().into())
     }
 }
 

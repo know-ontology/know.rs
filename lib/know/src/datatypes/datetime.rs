@@ -1,6 +1,9 @@
 // This is free and unencumbered software released into the public domain.
 
-use crate::formatters::{DisplayInline, DisplayMime};
+use crate::{
+    formatters::{DisplayInline, DisplayMime},
+    traits,
+};
 use alloc::{fmt, str::FromStr};
 
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
@@ -43,6 +46,13 @@ impl fmt::Display for DisplayMime<'_, DateTime> {
         static P: DateTimePrinter = DateTimePrinter::new();
         P.print_zoned(&self.0.as_zoned(), StdFmtWrite(f))
             .map_err(|_| fmt::Error)
+    }
+}
+
+#[cfg(feature = "serde")]
+impl traits::ToJsonLd for DateTime {
+    fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
+        Ok(self.0.to_string().into())
     }
 }
 

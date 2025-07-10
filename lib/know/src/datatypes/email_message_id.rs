@@ -1,6 +1,6 @@
 // This is free and unencumbered software released into the public domain.
 
-use crate::formatters::DisplayInline;
+use crate::{formatters::DisplayInline, traits};
 use alloc::{borrow::Cow, fmt, str::FromStr};
 
 /// See: https://datatracker.ietf.org/doc/html/rfc5322#section-3.6
@@ -27,6 +27,13 @@ impl fmt::Display for EmailMessageId {
 impl fmt::Display for DisplayInline<'_, EmailMessageId> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(f, "🆔 {}", self.0.as_str())
+    }
+}
+
+#[cfg(feature = "serde")]
+impl traits::ToJsonLd for EmailMessageId {
+    fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
+        Ok(format!("mid:{}", self.0).into())
     }
 }
 

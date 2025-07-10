@@ -16,7 +16,7 @@ publish.workspace = true
 
 [features]
 default = ["all", "std"]
-all = ["serde"]
+all = ["pretty", "serde"]
 alloc = []
 std = [
     "alloc",
@@ -31,7 +31,10 @@ std = [
     "zeroize?/std",
 ]
 
-# Integrations:
+# Optional features:
+pretty = ["serde", "dep:colored_json"]
+
+# Optional integrations:
 maildir = ["dep:maildir", "mailparse"]
 mailparse = ["dep:mailparse"]
 serde = [
@@ -51,10 +54,11 @@ iri-string = { version = "0.7", default-features = false, features = ["alloc"] }
 jiff = { version = "0.2", default-features = false, features = [] }
 thiserror = "2"
 
-# Integrations:
+# Optional integrations:
 chrono = { version = "0.4", default-features = false, features = [
     "alloc",
 ], optional = true }
+colored_json = { version = "5", default-features = false, optional = true }
 imap-proto = { version = "0.16", default-features = false, optional = true }
 mail-parser = { version = "0.11", default-features = false, optional = true }
 maildir = { version = "0.6", default-features = false, optional = true }
