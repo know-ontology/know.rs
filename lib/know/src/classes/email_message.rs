@@ -169,6 +169,13 @@ impl traits::ToJsonLd for EmailMessage {
                 None => "_:message".into(),
             },
             "@type": "EmailMessage",
+            "from": self.from.iter().map(|x| x.to_jsonld().unwrap()).collect::<Vec<_>>(),
+            "sender": self.sender.iter().map(|x| x.to_jsonld().unwrap()).collect::<Vec<_>>(),
+            "to": self.to.iter().map(|x| x.to_jsonld().unwrap()).collect::<Vec<_>>(),
+            "cc": self.cc.iter().map(|x| x.to_jsonld().unwrap()).collect::<Vec<_>>(),
+            "bcc": self.bcc.iter().map(|x| x.to_jsonld().unwrap()).collect::<Vec<_>>(),
+            "subject": self.subject,
+            "body": self.body,
         }))
     }
 }
