@@ -264,7 +264,7 @@ impl TryFrom<&mail_parser::Message<'_>> for EmailMessage {
             id: input.message_id().map(EmailMessageId::from),
             in_reply_to: Default::default(),
             references: Default::default(),
-            body: Default::default(),
+            body: input.body_text(0).map(|s| s.into_owned()),
         })
     }
 }
