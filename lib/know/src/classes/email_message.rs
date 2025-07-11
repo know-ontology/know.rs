@@ -148,7 +148,7 @@ impl fmt::Display for DisplayMime<'_, EmailMessage> {
 impl fmt::Display for DisplayJsonLd<'_, EmailMessage> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         use crate::traits::ToJsonLd;
-        let json = self.0.to_jsonld().unwrap();
+        let json = self.0.to_jsonld().unwrap(); // infallible
         if cfg!(feature = "pretty") {
             let mut w = crate::formatters::WriteToFormatter::new(f);
             colored_json::write_colored_json(&json, &mut w).map_err(|_| fmt::Error)?;
@@ -169,11 +169,11 @@ impl traits::ToJsonLd for EmailMessage {
                 None => "_:message".into(),
             },
             "@type": "EmailMessage",
-            "from": self.from.iter().map(|x| x.to_jsonld().unwrap()).collect::<Vec<_>>(),
-            "sender": self.sender.iter().map(|x| x.to_jsonld().unwrap()).collect::<Vec<_>>(),
-            "to": self.to.iter().map(|x| x.to_jsonld().unwrap()).collect::<Vec<_>>(),
-            "cc": self.cc.iter().map(|x| x.to_jsonld().unwrap()).collect::<Vec<_>>(),
-            "bcc": self.bcc.iter().map(|x| x.to_jsonld().unwrap()).collect::<Vec<_>>(),
+            "from": self.from.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
+            "sender": self.sender.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
+            "to": self.to.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
+            "cc": self.cc.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
+            "bcc": self.bcc.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
             "subject": self.subject,
             "body": self.body,
         }))
@@ -185,34 +185,34 @@ impl TryFrom<&imap_proto::types::Envelope<'_>> for EmailMessage {
     type Error = ();
 
     fn try_from(input: &imap_proto::types::Envelope) -> Result<Self, Self::Error> {
-        let input_date = String::from_utf8_lossy(input.date.as_ref().unwrap());
+        let input_date = String::from_utf8_lossy(input.date.as_ref().unwrap()); // TODO: fallible?
         let input_date = jiff::fmt::rfc2822::parse(&input_date).map_err(|_| ())?;
         Ok(Self {
             date: input_date.into(),
             from: input
                 .from
                 .as_ref()
-                .map(|xs| xs.into_iter().map(|x| x.try_into().unwrap()).collect())
+                .map(|xs| xs.into_iter().filter_map(|x| x.try_into().ok()).collect())
                 .unwrap_or_default(),
             sender: input
                 .sender
                 .as_ref()
-                .map(|xs| xs.into_iter().map(|x| x.try_into().unwrap()).next())
+                .map(|xs| xs.into_iter().filter_map(|x| x.try_into().ok()).next())
                 .unwrap_or_default(),
             reply_to: input
                 .reply_to
                 .as_ref()
-                .map(|xs| xs.into_iter().map(|x| x.try_into().unwrap()).next())
+                .map(|xs| xs.into_iter().filter_map(|x| x.try_into().ok()).next())
                 .unwrap_or_default(),
             to: input
                 .to
                 .as_ref()
-                .map(|xs| xs.into_iter().map(|x| x.try_into().unwrap()).collect())
+                .map(|xs| xs.into_iter().filter_map(|x| x.try_into().ok()).collect())
                 .unwrap_or_default(),
             cc: input
                 .cc
                 .as_ref()
-                .map(|xs| xs.into_iter().map(|x| x.try_into().unwrap()).collect())
+                .map(|xs| xs.into_iter().filter_map(|x| x.try_into().ok()).collect())
                 .unwrap_or_default(),
             bcc: Default::default(),
             subject: input
