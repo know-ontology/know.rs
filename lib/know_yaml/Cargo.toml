@@ -24,7 +24,7 @@ std = ["alloc", "know/std", "serde?/std"]
 serde = ["know/serde", "dep:serde", "dep:serde_yaml"]
 
 [dependencies]
-know = { version = "0.2.2", path = "../know", default-features = false }
+know = { version = "0.2.3", path = "../know", default-features = false }
 thiserror = "2"
 
 # Integrations:
