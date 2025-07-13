@@ -85,25 +85,25 @@ impl fmt::Display for DisplayDetailed<'_, EmailMessage> {
         }
         writeln!(f, "\tDate: {}", self.0.date.inline())?;
         for addr in &self.0.from {
-            writeln!(f, "\tFrom: {}", addr)?;
+            writeln!(f, "\tFrom: {}", addr.inline())?;
         }
         for addr in &self.0.to {
-            writeln!(f, "\tTo: {}", addr)?;
+            writeln!(f, "\tTo: {}", addr.inline())?;
         }
         for addr in &self.0.cc {
-            writeln!(f, "\tCc: {}", addr)?;
+            writeln!(f, "\tCc: {}", addr.inline())?;
         }
         for addr in &self.0.bcc {
-            writeln!(f, "\tBcc: {}", addr)?;
+            writeln!(f, "\tBcc: {}", addr.inline())?;
         }
         if let Some(ref id) = self.0.id {
-            writeln!(f, "\tMessage-ID: {}", id)?;
+            writeln!(f, "\tMessage-ID: {}", id.inline())?;
         }
         if let Some(ref in_reply_to) = self.0.in_reply_to {
-            writeln!(f, "\tIn-Reply-To: {}", in_reply_to)?;
+            writeln!(f, "\tIn-Reply-To: {}", in_reply_to.inline())?;
         }
         if let Some(ref references) = self.0.references {
-            writeln!(f, "\tReferences: {}", references)?;
+            writeln!(f, "\tReferences: {}", references.inline())?;
         }
         Ok(())
     }
