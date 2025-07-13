@@ -30,13 +30,6 @@ impl fmt::Display for DisplayInline<'_, EmailAddress> {
     }
 }
 
-#[cfg(feature = "serde")]
-impl traits::ToJsonLd for EmailAddress {
-    fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
-        Ok(format!("mailto:{}", self.0).into())
-    }
-}
-
 impl FromStr for EmailAddress {
     type Err = ();
 
@@ -49,7 +42,7 @@ impl FromStr for EmailAddress {
                 if start < end {
                     let email = trimmed[start + 1..end].trim();
                     if !email.is_empty() {
-                        return Ok(EmailAddress(email.to_string()));
+                        return Ok(EmailAddress(email.to_lowercase()));
                     }
                 }
             }
@@ -57,65 +50,10 @@ impl FromStr for EmailAddress {
 
         // If no angle brackets or parsing failed, treat the whole input as email:
         if !trimmed.is_empty() {
-            Ok(EmailAddress(trimmed.to_string()))
+            Ok(EmailAddress(trimmed.to_lowercase()))
         } else {
             Err(())
         }
-    }
-}
-
-#[cfg(feature = "imap-proto")]
-impl TryFrom<&imap_proto::Address<'_>> for EmailAddress {
-    type Error = ();
-
-    fn try_from(input: &imap_proto::Address) -> Result<Self, Self::Error> {
-        match (&input.mailbox, &input.host) {
-            (Some(mailbox), Some(host)) => {
-                let mailbox = String::from_utf8_lossy(&mailbox);
-                let host = String::from_utf8_lossy(&host);
-                Ok(Self(format!("{}@{}", mailbox, host)))
-            },
-            _ => Err(()),
-        }
-    }
-}
-
-#[cfg(feature = "mail-parser")]
-impl TryFrom<&mail_parser::Addr<'_>> for EmailAddress {
-    type Error = ();
-
-    fn try_from(input: &mail_parser::Addr) -> Result<Self, Self::Error> {
-        Ok(Self(
-            input
-                .address
-                .as_ref()
-                .map(ToString::to_string)
-                .ok_or_else(|| ())?,
-        ))
-    }
-}
-
-#[cfg(feature = "mailparse")]
-impl TryFrom<&mailparse::MailAddr> for EmailAddress {
-    type Error = mailparse::MailParseError;
-
-    fn try_from(input: &mailparse::MailAddr) -> Result<Self, Self::Error> {
-        match input {
-            mailparse::MailAddr::Single(single) => Ok(Self(single.addr.clone())),
-            mailparse::MailAddr::Group(_group) => todo!(),
-        }
-    }
-}
-
-#[cfg(feature = "mailparse")]
-impl TryFrom<&mailparse::MailHeader<'_>> for EmailAddress {
-    type Error = mailparse::MailParseError;
-
-    fn try_from(input: &mailparse::MailHeader) -> Result<Self, Self::Error> {
-        use mailparse::MailParseError;
-        (input.get_value_utf8()?)
-            .parse()
-            .map_err(|_| MailParseError::Generic("invalid email address in header"))
     }
 }
 
@@ -124,3 +62,15 @@ impl Into<String> for EmailAddress {
         self.0
     }
 }
+
+#[cfg(feature = "imap-proto")]
+include!("email_address/imap_proto.rs");
+
+#[cfg(feature = "mail-parser")]
+include!("email_address/mail_parser.rs");
+
+#[cfg(feature = "mailparse")]
+include!("email_address/mailparse.rs");
+
+#[cfg(feature = "serde")]
+include!("email_address/serde.rs");
