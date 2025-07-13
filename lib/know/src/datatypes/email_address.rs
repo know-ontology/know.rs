@@ -118,3 +118,9 @@ impl TryFrom<&mailparse::MailHeader<'_>> for EmailAddress {
             .map_err(|_| MailParseError::Generic("invalid email address in header"))
     }
 }
+
+impl Into<String> for EmailAddress {
+    fn into(self) -> String {
+        self.0
+    }
+}
