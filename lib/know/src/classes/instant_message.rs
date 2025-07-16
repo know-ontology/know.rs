@@ -16,8 +16,8 @@ use alloc::fmt;
 pub struct InstantMessage {
     pub id: Option<InstantMessageId>,
     pub date: DateTime,
-    pub sender: InstantMessageHandle,
-    pub receiver: InstantMessageHandle,
+    pub from: InstantMessageHandle,
+    pub to: InstantMessageHandle,
     pub platform: Option<String>,
     pub references: Option<InstantMessageId>,
     pub content: String,
@@ -54,9 +54,7 @@ impl fmt::Display for InstantMessage {
 
 impl fmt::Display for DisplayInline<'_, InstantMessage> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.0.date)?;
-        write!(f, " {}:", self.0.sender)?;
-        write!(f, " {}", self.0.receiver)?;
+        write!(f, "{} {}: {}", self.0.date, self.0.from, self.0.to)?;
         Ok(())
     }
 }
@@ -73,8 +71,8 @@ impl fmt::Display for DisplayDetailed<'_, InstantMessage> {
             writeln!(f, "📲: {}", id.inline())?;
         }
         writeln!(f, "\tDate: {}", self.0.date.inline())?;
-        writeln!(f, "\tSender: {}", self.0.sender.inline())?;
-        writeln!(f, "\tReceiver: {}", self.0.receiver.inline())?;
+        writeln!(f, "\tFrom: {}", self.0.from.inline())?;
+        writeln!(f, "\tTo: {}", self.0.to.inline())?;
         if let Some(ref platform) = self.0.platform {
             writeln!(f, "\tPlatform: {}", platform)?;
         }
@@ -110,10 +108,10 @@ impl traits::ToJsonLd for InstantMessage {
                 None => "_:message".into(),
             },
             "@type": "InstantMessage",
-            "sender": self.sender.to_jsonld()?,
-            "receiver": self.receiver.to_jsonld()?,
+            "from": self.from.to_jsonld()?,
+            "to": self.to.to_jsonld()?,
             "platform": self.platform,
-            "body": self.content,
+            "content": self.content,
         }))
     }
 }
