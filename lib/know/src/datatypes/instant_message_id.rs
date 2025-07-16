@@ -3,7 +3,6 @@
 use crate::{formatters::DisplayInline, traits};
 use alloc::{borrow::Cow, fmt, str::FromStr};
 
-/// See: https://datatracker.ietf.org/doc/html/rfc5322#section-3.6
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct InstantMessageId(String);
@@ -38,7 +37,7 @@ impl traits::ToJsonLd for InstantMessageId {
 }
 
 impl FromStr for InstantMessageId {
-    type Err = ();
+    type Err = core::convert::Infallible;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
         Ok(InstantMessageId(input.to_string()))
