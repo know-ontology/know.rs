@@ -43,7 +43,7 @@ impl fmt::Display for DisplayInline<'_, InstantMessageHandle> {
 #[cfg(feature = "serde")]
 impl traits::ToJsonLd for InstantMessageHandle {
     fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
-        Ok(format!("handle:{self}").into())
+        Ok(format!("im:{self}").into())
     }
 }
 
