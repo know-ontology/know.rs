@@ -78,6 +78,71 @@ impl fmt::Display for DisplayOneliner<'_, EmailMessage> {
     }
 }
 
+impl fmt::Display for DisplayConcise<'_, EmailMessage> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        if let Some(ref subject) = self.0.subject {
+            writeln!(f, "✉️  {}", subject)?;
+        }
+        writeln!(f, "\tDate: {}", self.0.date.inline())?;
+        if !self.0.from.is_empty() {
+            writeln!(
+                f,
+                "\tFrom: {}",
+                &self
+                    .0
+                    .from
+                    .iter()
+                    .map(|addr| format!("{}", addr.inline()))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )?;
+        }
+        if !self.0.to.is_empty() {
+            writeln!(
+                f,
+                "\tTo: {}",
+                &self
+                    .0
+                    .to
+                    .iter()
+                    .map(|addr| format!("{}", addr.inline()))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )?;
+        }
+        if !self.0.cc.is_empty() {
+            writeln!(
+                f,
+                "\tCc: {}",
+                &self
+                    .0
+                    .cc
+                    .iter()
+                    .map(|addr| format!("{}", addr.inline()))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )?;
+        }
+        if !self.0.bcc.is_empty() {
+            writeln!(
+                f,
+                "\tBcc: {}",
+                &self
+                    .0
+                    .bcc
+                    .iter()
+                    .map(|addr| format!("{}", addr.inline()))
+                    .collect::<Vec<String>>()
+                    .join(", ")
+            )?;
+        }
+        if let Some(ref id) = self.0.id {
+            writeln!(f, "\tMessage-ID: {}", id.inline())?;
+        }
+        Ok(())
+    }
+}
+
 impl fmt::Display for DisplayDetailed<'_, EmailMessage> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         if let Some(ref subject) = self.0.subject {
