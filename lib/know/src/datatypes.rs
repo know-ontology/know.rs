@@ -15,6 +15,12 @@ pub use email_address::*;
 mod email_message_id;
 pub use email_message_id::*;
 
+mod instant_message_handle;
+pub use instant_message_handle::*;
+
+mod instant_message_id;
+pub use instant_message_id::*;
+
 mod person_name;
 pub use person_name::*;
 
