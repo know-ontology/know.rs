@@ -7,7 +7,6 @@ use crate::{
 use alloc::{fmt, str::FromStr};
 
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
-#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct DateTime(jiff::Zoned);
 
 impl DateTime {
@@ -26,7 +25,7 @@ impl DateTime {
 
 impl fmt::Display for DateTime {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{}", self.as_zoned().strftime("%Y-%m-%dT%H:%M:%S%:::z"))
+        write!(f, "{}", self.as_zoned().strftime("%FT%T.%3f%:z")) // ISO 8601
     }
 }
 
@@ -49,18 +48,11 @@ impl fmt::Display for DisplayMime<'_, DateTime> {
     }
 }
 
-#[cfg(feature = "serde")]
-impl traits::ToJsonLd for DateTime {
-    fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
-        Ok(self.0.to_string().into())
-    }
-}
-
 impl FromStr for DateTime {
     type Err = jiff::Error;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        jiff::Zoned::from_str(input).map(|x| x.into())
+        jiff::Zoned::strptime("%FT%T.%3f%:z", input).map(|x| x.into()) // ISO 8601
     }
 }
 
@@ -140,3 +132,6 @@ impl AsRef<jiff::Zoned> for DateTime {
         &self.0
     }
 }
+
+#[cfg(feature = "serde")]
+include!("datetime/serde.rs");
