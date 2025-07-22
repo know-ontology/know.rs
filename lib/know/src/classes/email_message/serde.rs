@@ -31,6 +31,7 @@ impl traits::ToJsonLd for EmailMessage {
             "cc": self.cc.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
             "bcc": self.bcc.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
             "subject": self.subject,
+            "id": self.id,
             "inReplyTo": self.in_reply_to.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
             "references": self.references.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
             "body": self.body,
