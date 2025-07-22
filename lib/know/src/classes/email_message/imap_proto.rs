@@ -21,7 +21,7 @@ impl TryFrom<&imap_proto::types::Envelope<'_>> for EmailMessage {
             reply_to: input
                 .reply_to
                 .as_ref()
-                .map(|xs| xs.into_iter().filter_map(|x| x.try_into().ok()).next())
+                .map(|xs| xs.into_iter().filter_map(|x| x.try_into().ok()).collect())
                 .unwrap_or_default(),
             to: input
                 .to
@@ -42,8 +42,8 @@ impl TryFrom<&imap_proto::types::Envelope<'_>> for EmailMessage {
                 .message_id
                 .as_ref()
                 .and_then(|header| String::from_utf8_lossy(header).parse().ok()),
-            in_reply_to: Default::default(),
-            references: Default::default(),
+            in_reply_to: Default::default(), // TODO
+            references: Default::default(),  // TODO
             body: Default::default(),
         })
     }

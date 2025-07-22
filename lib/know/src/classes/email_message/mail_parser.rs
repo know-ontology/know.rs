@@ -16,8 +16,8 @@ impl TryFrom<&mail_parser::Message<'_>> for EmailMessage {
                 .and_then(|addresses| EmailAddressList::try_from(addresses).ok())
                 .map(EmailAddressList::into_vec)
                 .unwrap_or_default(),
-            sender: None,
-            reply_to: None,
+            sender: Default::default(),   // TODO
+            reply_to: Default::default(), // TODO
             to: input
                 .to()
                 .and_then(|addresses| EmailAddressList::try_from(addresses).ok())
@@ -31,8 +31,8 @@ impl TryFrom<&mail_parser::Message<'_>> for EmailMessage {
             bcc: Default::default(),
             subject: input.subject().map(ToString::to_string),
             id: input.message_id().map(EmailMessageId::from),
-            in_reply_to: Default::default(),
-            references: Default::default(),
+            in_reply_to: Default::default(), // TODO
+            references: Default::default(),  // TODO
             body: input.body_text(0).map(|s| s.into_owned()),
         })
     }

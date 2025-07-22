@@ -11,19 +11,55 @@ use alloc::fmt;
 
 /// See: https://datatracker.ietf.org/doc/html/rfc5322#section-3.6
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
+#[cfg_attr(feature = "serde", cfg_eval::cfg_eval, serde_with::serde_as)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(feature = "serde", serde(default, rename_all = "camelCase"))]
 pub struct EmailMessage {
+    /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#name-the-origination-date-field
     pub date: DateTime,
+
+    /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#name-originator-fields
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     pub from: Vec<EmailAddress>,
+
+    /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#name-originator-fields
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub sender: Option<EmailAddress>,
-    pub reply_to: Option<EmailAddress>,
+
+    /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#name-originator-fields
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
+    pub reply_to: Vec<EmailAddress>,
+
+    /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#name-destination-address-fields
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     pub to: Vec<EmailAddress>,
+
+    /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#name-destination-address-fields
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     pub cc: Vec<EmailAddress>,
+
+    /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#name-destination-address-fields
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
     pub bcc: Vec<EmailAddress>,
+
+    /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#name-informational-fields
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub subject: Option<String>,
+
+    /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#section-3.6.4
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub id: Option<EmailMessageId>,
-    pub in_reply_to: Option<EmailMessageId>,
-    pub references: Option<EmailMessageId>,
+
+    /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#section-3.6.4
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
+    pub in_reply_to: Vec<EmailMessageId>,
+
+    /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#section-3.6.4
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
+    pub references: Vec<EmailMessageId>,
+
+    /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#name-body
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub body: Option<String>,
 }
 
@@ -164,10 +200,10 @@ impl fmt::Display for DisplayDetailed<'_, EmailMessage> {
         if let Some(ref id) = self.0.id {
             writeln!(f, "\tMessage-ID: {}", id.inline())?;
         }
-        if let Some(ref in_reply_to) = self.0.in_reply_to {
+        for in_reply_to in &self.0.in_reply_to {
             writeln!(f, "\tIn-Reply-To: {}", in_reply_to.inline())?;
         }
-        if let Some(ref references) = self.0.references {
+        for references in &self.0.references {
             writeln!(f, "\tReferences: {}", references.inline())?;
         }
         Ok(())
@@ -195,11 +231,11 @@ impl fmt::Display for DisplayMime<'_, EmailMessage> {
         if let Some(ref id) = self.0.id {
             writeln!(f, "Message-ID: <{}>", id.as_str())?;
         }
-        if let Some(ref in_reply_to) = self.0.in_reply_to {
-            writeln!(f, "In-Reply-To: {}", in_reply_to)?;
+        for in_reply_to in &self.0.in_reply_to {
+            writeln!(f, "In-Reply-To: {}", in_reply_to.inline())?;
         }
-        if let Some(ref references) = self.0.references {
-            writeln!(f, "References: {}", references)?;
+        for references in &self.0.references {
+            writeln!(f, "References: {}", references.inline())?;
         }
         if let Some(ref body) = self.0.body {
             writeln!(f)?;

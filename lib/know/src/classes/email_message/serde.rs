@@ -23,12 +23,16 @@ impl traits::ToJsonLd for EmailMessage {
                 None => "_:message".into(),
             },
             "@type": "EmailMessage",
+            "date": self.date.to_jsonld()?,
             "from": self.from.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
-            "sender": self.sender.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
+            "sender": self.sender.as_ref().and_then(|x| x.to_jsonld().ok()),
+            "replyTo": self.reply_to.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
             "to": self.to.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
             "cc": self.cc.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
             "bcc": self.bcc.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
             "subject": self.subject,
+            "inReplyTo": self.in_reply_to.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
+            "references": self.references.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
             "body": self.body,
         }))
     }

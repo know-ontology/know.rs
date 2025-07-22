@@ -29,8 +29,10 @@ impl TryFrom<&Vec<mailparse::MailHeader<'_>>> for EmailMessage {
                 .get_first_value("Sender")
                 .and_then(|header| header.parse().ok()),
             reply_to: input
-                .get_first_value("Reply-To")
-                .and_then(|header| header.parse().ok()),
+                .get_all_headers("Reply-To")
+                .into_iter()
+                .filter_map(|header| header.try_into().ok())
+                .collect(),
             to: input
                 .get_all_headers("To")
                 .into_iter()
@@ -46,8 +48,8 @@ impl TryFrom<&Vec<mailparse::MailHeader<'_>>> for EmailMessage {
             id: input
                 .get_first_value("Message-ID")
                 .and_then(|header| header.parse().ok()),
-            in_reply_to: Default::default(),
-            references: Default::default(),
+            in_reply_to: Default::default(), // TODO
+            references: Default::default(),  // TODO
             body: Default::default(),
         })
     }
