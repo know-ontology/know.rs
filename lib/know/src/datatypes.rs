@@ -21,6 +21,9 @@ pub use instant_message_handle::*;
 mod instant_message_id;
 pub use instant_message_id::*;
 
+mod instant_message_recipient;
+pub use instant_message_recipient::*;
+
 mod person_name;
 pub use person_name::*;
 

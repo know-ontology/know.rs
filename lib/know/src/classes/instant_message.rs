@@ -2,7 +2,9 @@
 
 use super::ThingLike;
 use crate::{
-    datatypes::{DateTime, InstantMessageHandle, InstantMessageId, PhoneNumber},
+    datatypes::{
+        DateTime, InstantMessageHandle, InstantMessageId, InstantMessageRecipient, PhoneNumber,
+    },
     formatters::{
         DisplayConcise, DisplayDetailed, DisplayInline, DisplayJsonLd, DisplayMime, DisplayOneliner,
     },
@@ -17,7 +19,7 @@ pub struct InstantMessage {
     pub id: Option<InstantMessageId>,
     pub date: DateTime,
     pub from: InstantMessageHandle,
-    pub to: InstantMessageHandle,
+    pub to: InstantMessageRecipient,
     pub platform: Option<String>,
     pub references: Option<InstantMessageId>,
     pub content: String,
@@ -109,7 +111,7 @@ impl traits::ToJsonLd for InstantMessage {
             },
             "@type": "InstantMessage",
             "from": self.from.to_jsonld()?,
-            "to": self.to.to_jsonld()?,
+            "to": self.to,
             "platform": self.platform,
             "content": self.content,
         }))
