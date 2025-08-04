@@ -16,7 +16,7 @@ publish.workspace = true
 
 [features]
 default = ["all", "std"]
-all = ["pretty", "serde"]
+all = ["pretty", "serde", "tldr"]
 alloc = []
 std = [
     "alloc",
@@ -30,9 +30,12 @@ std = [
     "zerocopy?/std",
     "zeroize?/std",
 ]
+unstable = ["markdown"]
 
 # Optional features:
+markdown = []
 pretty = ["serde", "dep:colored_json"]
+tldr = ["dep:tldr"]
 
 # Optional integrations:
 maildir = ["dep:maildir", "mailparse"]
@@ -75,6 +78,7 @@ serde_with = { version = "3.14", default-features = false, features = [
     "alloc",
     "macros",
 ], optional = true }
+tldr = { workspace = true, optional = true }
 zerocopy = { version = "0.8", default-features = false, features = [
     "alloc",
     "derive",

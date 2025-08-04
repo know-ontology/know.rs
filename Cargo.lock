@@ -346,6 +346,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "thiserror",
+ "tldr-traits",
  "zerocopy",
  "zeroize",
 ]
@@ -697,6 +698,12 @@ dependencies = [
  "num-conv",
  "time-core",
 ]
+
+[[package]]
+name = "tldr-traits"
+version = "0.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9f7fb9279d4b67cfc9b8f63487ac9bb8ebfda81b118fd891707d4b2d654eb095"
 
 [[package]]
 name = "unicode-ident"

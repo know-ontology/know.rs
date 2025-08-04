@@ -5,7 +5,6 @@ use crate::{
     formatters::{
         DisplayConcise, DisplayDetailed, DisplayInline, DisplayJsonLd, DisplayMime, DisplayOneliner,
     },
-    traits,
 };
 use alloc::fmt;
 
@@ -242,6 +241,13 @@ impl fmt::Display for DisplayMime<'_, EmailMessage> {
             writeln!(f, "{}", body)?;
         }
         Ok(())
+    }
+}
+
+#[cfg(feature = "tldr")]
+impl tldr::Tldr for EmailMessage {
+    fn what(&self, _ctx: &tldr::TldrContext) -> Option<String> {
+        None // TODO
     }
 }
 

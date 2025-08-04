@@ -22,4 +22,6 @@ publish = true
 
 [workspace.dependencies]
 know = { path = "lib/know" }
+know_yaml = { path = "lib/know_yaml" }
 serde = { version = "1.0", features = ["derive"] }
+tldr = { version = "0.0.1", package = "tldr-traits" }

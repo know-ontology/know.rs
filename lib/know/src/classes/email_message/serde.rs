@@ -14,7 +14,7 @@ impl fmt::Display for DisplayJsonLd<'_, EmailMessage> {
     }
 }
 
-impl traits::ToJsonLd for EmailMessage {
+impl crate::traits::ToJsonLd for EmailMessage {
     fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
         use serde_json::json;
         Ok(json!({
