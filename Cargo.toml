@@ -24,4 +24,6 @@ publish = true
 know = { path = "lib/know" }
 know_yaml = { path = "lib/know_yaml" }
 serde = { version = "1.0", features = ["derive"] }
-tldr = { version = "0.0.1", package = "tldr-traits" }
+tldr = { version = "0.1", package = "tldr-traits", default-features = false, features = [
+    "builder",
+] }

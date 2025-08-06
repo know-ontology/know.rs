@@ -246,8 +246,36 @@ impl fmt::Display for DisplayMime<'_, EmailMessage> {
 
 #[cfg(feature = "tldr")]
 impl tldr::Tldr for EmailMessage {
-    fn what(&self, _ctx: &tldr::TldrContext) -> Option<String> {
-        None // TODO
+    type Error = Box<dyn core::error::Error>;
+
+    fn what(&self, ctx: &tldr::TldrContext) -> tldr::TldrResult<String, Self::Error> {
+        use core::fmt::Write;
+        use tldr::TldrLanguage::*;
+        Ok(match ctx.language {
+            English => {
+                let timespan = DateTime::now().since(&self.date)?;
+
+                let mut tldr = String::new();
+                write!(tldr, "An email message dated {timespan:#} ago")?;
+                if let Some(from) = &self.from.first() {
+                    write!(tldr, ", from {}", from)?;
+                }
+                if !self.to.is_empty() {
+                    write!(tldr, ", addressed to ")?;
+                    for (i, addr) in self.to.iter().enumerate() {
+                        if i > 0 {
+                            write!(tldr, ", ")?;
+                        }
+                        write!(tldr, "{}", addr)?;
+                    }
+                }
+                if let Some(subject) = &self.subject {
+                    write!(tldr, ", with the subject \"{}\"", subject)?;
+                }
+                Some(tldr)
+            },
+            _ => None,
+        })
     }
 }
 

@@ -7,9 +7,27 @@ use crate::{
 use alloc::{fmt, str::FromStr};
 
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
-pub struct DateTime(jiff::Zoned);
+pub struct DateTime(pub(crate) jiff::Zoned);
 
 impl DateTime {
+    pub fn now() -> Self {
+        jiff::Zoned::now().into()
+    }
+
+    pub fn since(&self, other: &DateTime) -> Result<jiff::Span, jiff::Error> {
+        self.0.since(other.zoned_diff())
+    }
+
+    pub fn until(&self, other: &DateTime) -> Result<jiff::Span, jiff::Error> {
+        self.0.until(other.zoned_diff())
+    }
+
+    pub(crate) fn zoned_diff(&self) -> jiff::ZonedDifference {
+        jiff::ZonedDifference::from(&self.0)
+            .smallest(jiff::Unit::Minute)
+            .largest(jiff::Unit::Year)
+    }
+
     pub fn as_zoned(&self) -> &jiff::Zoned {
         &self.0
     }

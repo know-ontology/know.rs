@@ -298,3 +298,21 @@ impl FromStr for PersonRef {
         Person::from_str(input).map(Rc::new).map(PersonRef)
     }
 }
+
+#[cfg(feature = "tldr")]
+impl tldr::Tldr for Person {
+    type Error = core::fmt::Error;
+
+    fn what(&self, ctx: &tldr::TldrContext) -> tldr::TldrResult<String, Self::Error> {
+        use core::fmt::Write;
+        use tldr::TldrLanguage::*;
+        Ok(match ctx.language {
+            English => {
+                let mut tldr = String::new();
+                write!(tldr, "A person named {}", self.name)?;
+                Some(tldr)
+            },
+            _ => None,
+        })
+    }
+}

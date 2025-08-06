@@ -27,6 +27,7 @@ std = [
     "serde_json?/preserve_order",
     "serde_json?/std",
     "serde_with?/std",
+    "tldr?/std",
     "zerocopy?/std",
     "zeroize?/std",
 ]
@@ -44,6 +45,7 @@ serde = [
     "chrono?/serde",
     "iri-string/serde",
     "jiff/serde",
+    "tldr?/serde",
     "zeroize?/serde",
     "dep:cfg_eval",
     "dep:serde",
