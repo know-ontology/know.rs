@@ -253,10 +253,10 @@ impl tldr::Tldr for EmailMessage {
         use tldr::TldrLanguage::*;
         Ok(match ctx.language {
             English => {
-                let timespan = DateTime::now().since(&self.date)?;
+                let timespan = DateTime::now().since(&self.date)?.round()?;
 
                 let mut tldr = String::new();
-                write!(tldr, "An email message dated {timespan:#} ago")?;
+                write!(tldr, "An email message dated {timespan} ago")?;
                 if let Some(from) = &self.from.first() {
                     write!(tldr, ", from {}", from)?;
                 }

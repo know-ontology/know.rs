@@ -23,6 +23,7 @@ std = [
     "chrono?/std",
     "iri-string/std",
     "jiff/std",
+    "jiff/tz-system",
     "serde?/std",
     "serde_json?/preserve_order",
     "serde_json?/std",

@@ -1,6 +1,7 @@
 // This is free and unencumbered software released into the public domain.
 
 use crate::{
+    datatypes::Duration,
     formatters::{DisplayInline, DisplayMime},
     traits,
 };
@@ -11,20 +12,23 @@ pub struct DateTime(pub(crate) jiff::Zoned);
 
 impl DateTime {
     pub fn now() -> Self {
-        jiff::Zoned::now().into()
+        let tz = jiff::tz::TimeZone::try_system().unwrap_or(jiff::tz::TimeZone::UTC);
+        jiff::Zoned::now().with_time_zone(tz).into()
     }
 
-    pub fn since(&self, other: &DateTime) -> Result<jiff::Span, jiff::Error> {
-        self.0.since(other.zoned_diff())
+    pub fn since(&self, other: &DateTime) -> Result<Duration, jiff::Error> {
+        let other = Self(other.0.with_time_zone(self.0.time_zone().clone()));
+        Ok(self.0.since(other.zoned_diff())?.into())
     }
 
-    pub fn until(&self, other: &DateTime) -> Result<jiff::Span, jiff::Error> {
-        self.0.until(other.zoned_diff())
+    pub fn until(&self, other: &DateTime) -> Result<Duration, jiff::Error> {
+        let other = Self(other.0.with_time_zone(self.0.time_zone().clone()));
+        Ok(self.0.until(other.zoned_diff())?.into())
     }
 
     pub(crate) fn zoned_diff(&self) -> jiff::ZonedDifference {
         jiff::ZonedDifference::from(&self.0)
-            .smallest(jiff::Unit::Minute)
+            .smallest(jiff::Unit::Second)
             .largest(jiff::Unit::Year)
     }
 
