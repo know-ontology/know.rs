@@ -9,6 +9,9 @@ pub use date::*;
 mod datetime;
 pub use datetime::*;
 
+mod duration;
+pub use duration::*;
+
 mod email_address;
 pub use email_address::*;
 
