@@ -63,7 +63,7 @@ impl fmt::Display for DisplayInline<'_, DateTime> {
 
 impl fmt::Display for DisplayMime<'_, DateTime> {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        use jiff::fmt::{rfc2822::DateTimePrinter, StdFmtWrite};
+        use jiff::fmt::{StdFmtWrite, rfc2822::DateTimePrinter};
         static P: DateTimePrinter = DateTimePrinter::new();
         P.print_zoned(&self.0.as_zoned(), StdFmtWrite(f))
             .map_err(|_| fmt::Error)
