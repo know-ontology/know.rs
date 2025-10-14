@@ -32,3 +32,6 @@ pub use person_name::*;
 
 mod phone_number;
 pub use phone_number::*;
+
+mod software_license;
+pub use software_license::*;

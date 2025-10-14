@@ -1,7 +1,10 @@
 // This is free and unencumbered software released into the public domain.
 
-use super::{PersonRef, ProjectLike, SoftwareLicense, SoftwarePackageRef, ThingLike};
-use crate::{datatypes::EmailAddress, prelude::*};
+use super::{PersonRef, ProjectLike, SoftwarePackageRef, ThingLike};
+use crate::{
+    datatypes::{EmailAddress, SoftwareLicense},
+    prelude::*,
+};
 use std::str::FromStr;
 
 #[cfg(feature = "serde")]
