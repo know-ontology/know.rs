@@ -1,9 +1,8 @@
 // This is free and unencumbered software released into the public domain.
 
-use crate::{formatters::DisplayInline, traits};
-use alloc::{fmt, str::FromStr};
-
-use super::{InstantMessageHandle, PhoneNumber};
+use super::InstantMessageHandle;
+use crate::formatters::DisplayInline;
+use alloc::fmt;
 
 #[derive(Debug, Clone, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]

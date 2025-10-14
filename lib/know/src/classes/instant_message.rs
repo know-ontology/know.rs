@@ -2,12 +2,8 @@
 
 use super::ThingLike;
 use crate::{
-    datatypes::{
-        DateTime, InstantMessageHandle, InstantMessageId, InstantMessageRecipient, PhoneNumber,
-    },
-    formatters::{
-        DisplayConcise, DisplayDetailed, DisplayInline, DisplayJsonLd, DisplayMime, DisplayOneliner,
-    },
+    datatypes::{DateTime, InstantMessageHandle, InstantMessageId, InstantMessageRecipient},
+    formatters::{DisplayConcise, DisplayDetailed, DisplayInline, DisplayJsonLd, DisplayOneliner},
     prelude::Name,
     traits,
 };

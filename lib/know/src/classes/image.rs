@@ -15,7 +15,14 @@ pub struct Image {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub height: Option<usize>,
 
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
+    #[cfg_attr(
+        feature = "serde",
+        serde(
+            skip_serializing_if = "Vec::is_empty",
+            serialize_with = "serialize_data",
+            deserialize_with = "deserialize_data"
+        )
+    )]
     pub data: Vec<u8>,
 }
 
@@ -36,19 +43,42 @@ impl ThingLike for Image {
 #[cfg(feature = "serde")]
 impl crate::traits::ToJsonLd for Image {
     fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
-        use base64::{Engine as _, engine::general_purpose::STANDARD};
-        use serde_json::json;
-        Ok(json!({
+        Ok(serde_json::json!({
             "@type": "Image",
             "@id": match self.id {
                 Some(ref id) => id.clone(),
-                None => "_:image".into(),
+                None => "_:image".into(), // TODO: genid
             },
             "width": self.width,
             "height": self.height,
-            "data": format!("data:image/rgb;base64,{}", STANDARD.encode(&self.data)),
+            "data": serialize_data(&self.data, serde_json::value::Serializer)?,
         }))
     }
+}
+
+#[cfg(feature = "serde")]
+fn serialize_data<T, S>(data: T, ser: S) -> std::result::Result<S::Ok, S::Error>
+where
+    T: AsRef<Vec<u8>>,
+    S: serde::Serializer,
+{
+    use base64::{Engine as _, engine::general_purpose::STANDARD};
+    use serde::Serialize;
+    format!("data:image/rgb;base64,{}", STANDARD.encode(data.as_ref())).serialize(ser)
+}
+
+#[cfg(feature = "serde")]
+fn deserialize_data<'de, D>(deserializer: D) -> std::result::Result<Vec<u8>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use base64::{Engine as _, engine::general_purpose::STANDARD};
+    use serde::Deserialize;
+    let data_url = String::deserialize(deserializer)?;
+    let data = STANDARD
+        .decode(data_url.split(',').last().unwrap())
+        .map_err(serde::de::Error::custom)?;
+    Ok(data)
 }
 
 #[cfg(test)]
@@ -69,13 +99,13 @@ mod tests {
     #[test]
     fn test_image_new_with_fields() {
         let image = Image {
-            id: Some("test-image".to_string()),
+            id: Some("_:test-image".to_string()),
             width: Some(800),
             height: Some(600),
             data: vec![255, 0, 0, 0, 255, 0, 0, 0, 255], // RGB pixel data
         };
 
-        assert_eq!(image.id, Some("test-image".to_string()));
+        assert_eq!(image.id, Some("_:test-image".to_string()));
         assert_eq!(image.width, Some(800));
         assert_eq!(image.height, Some(600));
         assert_eq!(image.data, vec![255, 0, 0, 0, 255, 0, 0, 0, 255]);
@@ -84,7 +114,7 @@ mod tests {
     #[test]
     fn test_image_clone() {
         let original = Image {
-            id: Some("original".to_string()),
+            id: Some("_:original".to_string()),
             width: Some(100),
             height: Some(100),
             data: vec![1, 2, 3, 4, 5],
@@ -92,7 +122,7 @@ mod tests {
 
         let cloned = original.clone();
         assert_eq!(original, cloned);
-        assert_eq!(cloned.id, Some("original".to_string()));
+        assert_eq!(cloned.id, Some("_:original".to_string()));
         assert_eq!(cloned.width, Some(100));
         assert_eq!(cloned.height, Some(100));
         assert_eq!(cloned.data, vec![1, 2, 3, 4, 5]);
@@ -101,21 +131,21 @@ mod tests {
     #[test]
     fn test_image_equality() {
         let image1 = Image {
-            id: Some("test".to_string()),
+            id: Some("_:test".to_string()),
             width: Some(50),
             height: Some(50),
             data: vec![1, 2, 3],
         };
 
         let image2 = Image {
-            id: Some("test".to_string()),
+            id: Some("_:test".to_string()),
             width: Some(50),
             height: Some(50),
             data: vec![1, 2, 3],
         };
 
         let image3 = Image {
-            id: Some("different".to_string()),
+            id: Some("_:different".to_string()),
             width: Some(50),
             height: Some(50),
             data: vec![1, 2, 3],
@@ -128,14 +158,14 @@ mod tests {
     #[test]
     fn test_image_ordering() {
         let image1 = Image {
-            id: Some("a".to_string()),
+            id: Some("_:a".to_string()),
             width: Some(10),
             height: Some(10),
             data: vec![1],
         };
 
         let image2 = Image {
-            id: Some("b".to_string()),
+            id: Some("_:b".to_string()),
             width: Some(10),
             height: Some(10),
             data: vec![1],
@@ -148,14 +178,14 @@ mod tests {
     #[test]
     fn test_image_debug() {
         let image = Image {
-            id: Some("debug-test".to_string()),
+            id: Some("_:debug-test".to_string()),
             width: Some(32),
             height: Some(32),
             data: vec![255, 128, 0],
         };
 
         let debug_str = format!("{:?}", image);
-        assert!(debug_str.contains("debug-test"));
+        assert!(debug_str.contains("_:debug-test"));
         assert!(debug_str.contains("32"));
         assert!(debug_str.contains("255"));
     }
@@ -163,7 +193,7 @@ mod tests {
     #[test]
     fn test_thing_like_trait() {
         let image_with_id = Image {
-            id: Some("test-id".to_string()),
+            id: Some("_:test-id".to_string()),
             width: None,
             height: None,
             data: vec![],
@@ -171,7 +201,7 @@ mod tests {
 
         let image_without_id = Image::default();
 
-        assert_eq!(image_with_id.id(), Some("test-id"));
+        assert_eq!(image_with_id.id(), Some("_:test-id"));
         assert_eq!(image_without_id.id(), None);
         assert_eq!(image_with_id.name(), None);
         assert_eq!(image_without_id.name(), None);
@@ -189,7 +219,7 @@ mod tests {
     fn test_image_with_large_data() {
         let large_data = vec![42; 1000000]; // 1MB of data
         let image = Image {
-            id: Some("large-image".to_string()),
+            id: Some("_:large-image".to_string()),
             width: Some(1000),
             height: Some(1000),
             data: large_data.clone(),
@@ -226,7 +256,7 @@ mod tests {
     #[test]
     fn test_to_jsonld_with_id() {
         let image = Image {
-            id: Some("test-image-123".to_string()),
+            id: Some("_:test-image-123".to_string()),
             width: Some(800),
             height: Some(600),
             data: vec![255, 0, 0], // Simple RGB data
@@ -234,7 +264,7 @@ mod tests {
 
         let result = image.to_jsonld().unwrap();
         assert_eq!(result["@type"], "Image");
-        assert_eq!(result["@id"], "test-image-123");
+        assert_eq!(result["@id"], "_:test-image-123");
         assert_eq!(result["width"], 800);
         assert_eq!(result["height"], 600);
 
@@ -267,7 +297,7 @@ mod tests {
     #[test]
     fn test_to_jsonld_empty_data() {
         let image = Image {
-            id: Some("empty-image".to_string()),
+            id: Some("_:empty-image".to_string()),
             width: Some(0),
             height: Some(0),
             data: vec![],
@@ -275,7 +305,7 @@ mod tests {
 
         let result = image.to_jsonld().unwrap();
         assert_eq!(result["@type"], "Image");
-        assert_eq!(result["@id"], "empty-image");
+        assert_eq!(result["@id"], "_:empty-image");
         assert_eq!(result["width"], 0);
         assert_eq!(result["height"], 0);
         assert_eq!(result["data"], "data:image/rgb;base64,");
@@ -287,7 +317,7 @@ mod tests {
         use serde_json;
 
         let original = Image {
-            id: Some("roundtrip-test".to_string()),
+            id: Some("_:roundtrip-test".to_string()),
             width: Some(256),
             height: Some(256),
             data: vec![128, 64, 32, 16, 8, 4, 2, 1],
@@ -331,7 +361,7 @@ mod tests {
         use serde_json::{self, Value};
 
         let image = Image {
-            id: Some("populated".to_string()),
+            id: Some("_:populated".to_string()),
             width: Some(42),
             height: Some(24),
             data: vec![1, 2, 3],
@@ -346,9 +376,12 @@ mod tests {
         assert!(json_obj.contains_key("height"));
         assert!(json_obj.contains_key("data"));
 
-        assert_eq!(json_obj["id"], "populated");
+        assert_eq!(json_obj["id"], "_:populated");
         assert_eq!(json_obj["width"], 42);
         assert_eq!(json_obj["height"], 24);
-        assert_eq!(json_obj["data"], serde_json::json!([1, 2, 3]));
+        assert_eq!(
+            json_obj["data"],
+            serde_json::json!("data:image/rgb;base64,AQID")
+        );
     }
 }

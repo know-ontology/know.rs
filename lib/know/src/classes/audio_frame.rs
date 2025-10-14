@@ -18,7 +18,14 @@ pub struct AudioFrame {
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub samples: Option<usize>,
 
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Vec::is_empty"))]
+    #[cfg_attr(
+        feature = "serde",
+        serde(
+            skip_serializing_if = "Vec::is_empty",
+            serialize_with = "serialize_data",
+            deserialize_with = "deserialize_data"
+        )
+    )]
     pub data: Vec<u8>,
 }
 
@@ -39,9 +46,7 @@ impl ThingLike for AudioFrame {
 #[cfg(feature = "serde")]
 impl crate::traits::ToJsonLd for AudioFrame {
     fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
-        use base64::{Engine as _, engine::general_purpose::STANDARD};
-        use serde_json::json;
-        Ok(json!({
+        Ok(serde_json::json!({
             "@type": "AudioFrame",
             "@id": match self.id {
                 Some(ref id) => id.clone(),
@@ -50,7 +55,32 @@ impl crate::traits::ToJsonLd for AudioFrame {
             "rate": self.rate,
             "channels": self.channels,
             "samples": self.samples,
-            "data": format!("data:audio/l16;base64,{}", STANDARD.encode(&self.data)),
+            "data": serialize_data(&self.data, serde_json::value::Serializer)?,
         }))
     }
+}
+
+#[cfg(feature = "serde")]
+fn serialize_data<T, S>(data: T, ser: S) -> std::result::Result<S::Ok, S::Error>
+where
+    T: AsRef<Vec<u8>>,
+    S: serde::Serializer,
+{
+    use base64::{Engine as _, engine::general_purpose::STANDARD};
+    use serde::Serialize;
+    format!("data:image/l16;base64,{}", STANDARD.encode(data.as_ref())).serialize(ser)
+}
+
+#[cfg(feature = "serde")]
+fn deserialize_data<'de, D>(deserializer: D) -> std::result::Result<Vec<u8>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    use base64::{Engine as _, engine::general_purpose::STANDARD};
+    use serde::Deserialize;
+    let data_url = String::deserialize(deserializer)?;
+    let data = STANDARD
+        .decode(data_url.split(',').last().unwrap())
+        .map_err(serde::de::Error::custom)?;
+    Ok(data)
 }

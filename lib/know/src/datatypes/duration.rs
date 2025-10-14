@@ -1,9 +1,5 @@
 // This is free and unencumbered software released into the public domain.
 
-use crate::{
-    formatters::{DisplayInline, DisplayMime},
-    traits,
-};
 use alloc::{fmt, str::FromStr};
 
 #[derive(Clone, Debug, Default)]
