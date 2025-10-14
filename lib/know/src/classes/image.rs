@@ -6,7 +6,10 @@ use crate::prelude::*;
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Image {
-    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    #[cfg_attr(
+        feature = "serde",
+        serde(rename = "@id", skip_serializing_if = "Option::is_none")
+    )]
     pub id: Option<String>,
 
     #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
@@ -349,7 +352,7 @@ mod tests {
         let json_obj = json_value.as_object().unwrap();
 
         // These fields should be skipped in serialization
-        assert!(!json_obj.contains_key("id"));
+        assert!(!json_obj.contains_key("@id"));
         assert!(!json_obj.contains_key("width"));
         assert!(!json_obj.contains_key("height"));
         assert!(!json_obj.contains_key("data")); // Empty vec should be skipped
@@ -371,17 +374,35 @@ mod tests {
         let json_obj = json_value.as_object().unwrap();
 
         // These fields should be included
-        assert!(json_obj.contains_key("id"));
+        assert!(json_obj.contains_key("@id"));
         assert!(json_obj.contains_key("width"));
         assert!(json_obj.contains_key("height"));
         assert!(json_obj.contains_key("data"));
 
-        assert_eq!(json_obj["id"], "_:populated");
+        assert_eq!(json_obj["@id"], "_:populated");
         assert_eq!(json_obj["width"], 42);
         assert_eq!(json_obj["height"], 24);
         assert_eq!(
             json_obj["data"],
             serde_json::json!("data:image/rgb;base64,AQID")
         );
+    }
+
+    #[cfg(feature = "serde")]
+    #[test]
+    fn test_deserialization() {
+        let json = serde_json::json!({
+            "@type": "Image",
+            "@id": "_:image",
+            "width": 800,
+            "height": 600,
+            "data": "data:image/rgb;base64,AQID",
+        });
+
+        let image: Image = serde_json::from_value(json).unwrap();
+        assert_eq!(image.id, Some("_:image".to_string()));
+        assert_eq!(image.width, Some(800));
+        assert_eq!(image.height, Some(600));
+        assert_eq!(image.data, vec![1, 2, 3]);
     }
 }
