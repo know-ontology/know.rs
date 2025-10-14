@@ -8,10 +8,10 @@ resolver = "2"
 [workspace.package]
 version = "0.2.8"
 authors = ["KNOW Project <support@know.dev>"]
-edition = "2021"
-rust-version = "1.81"
+edition = "2024"
+#rust-version = "1.85"
 description = "The KNOW Framework for Rust"
-documentation = "https://github.com/know-ontology/know.rs/blob/master/README.md"
+#documentation = "https://docs.rs/know"
 readme = true
 homepage = "https://know.dev"
 repository = "https://github.com/know-ontology/know.rs"
@@ -23,7 +23,7 @@ publish = true
 [workspace.dependencies]
 know = { path = "lib/know" }
 know_yaml = { path = "lib/know_yaml" }
-serde = { version = "1.0", features = ["derive"] }
+serde = { version = "1", features = ["derive"] }
 tldr = { version = "0.1", package = "tldr-traits", default-features = false, features = [
     "builder",
 ] }

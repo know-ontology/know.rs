@@ -1,9 +1,11 @@
 // This is free and unencumbered software released into the public domain.
 
+mod audio_frame;
 mod email_message;
 mod event;
 mod file;
 mod group;
+mod image;
 mod instant_message;
 mod link;
 mod person;
@@ -15,10 +17,12 @@ mod software_project;
 mod software_release;
 mod thing;
 
+pub use audio_frame::*;
 pub use email_message::*;
 pub use event::*;
 pub use file::*;
 pub use group::*;
+pub use image::*;
 pub use instant_message::*;
 pub use link::*;
 pub use person::*;

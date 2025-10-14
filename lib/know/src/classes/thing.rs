@@ -11,10 +11,12 @@ pub trait ThingLike {
 #[derive(Clone, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub enum Thing {
+    AudioFrame(AudioFrame),
     EmailMessage(EmailMessage),
     Event(Event),
     File(File),
     Group(Group),
+    Image(Image),
     InstantMessage(InstantMessage),
     Link(Link),
     Person(Person),
@@ -28,10 +30,12 @@ pub enum Thing {
 impl Debug for Thing {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         match self {
+            Thing::AudioFrame(a) => a.fmt(f),
             Thing::EmailMessage(x) => x.fmt(f),
             Thing::Event(x) => x.fmt(f),
             Thing::File(x) => x.fmt(f),
             Thing::Group(x) => x.fmt(f),
+            Thing::Image(i) => i.fmt(f),
             Thing::InstantMessage(x) => x.fmt(f),
             Thing::Link(x) => x.fmt(f),
             Thing::Person(x) => x.fmt(f),
@@ -49,10 +53,12 @@ impl Debug for Thing {
 impl ThingLike for Thing {
     fn id(&self) -> Option<&str> {
         match self {
+            Thing::AudioFrame(a) => a.id(),
             Thing::EmailMessage(_e) => todo!(), // TODO
             Thing::Event(e) => e.id(),
             Thing::File(f) => f.id(),
             Thing::Group(g) => g.id(),
+            Thing::Image(i) => i.id(),
             Thing::InstantMessage(i) => i.id(),
             Thing::Link(l) => l.id(),
             Thing::Person(p) => p.id(),
@@ -66,10 +72,12 @@ impl ThingLike for Thing {
 
     fn name(&self) -> Option<&Name> {
         match self {
+            Thing::AudioFrame(a) => a.name(),
             Thing::EmailMessage(_e) => todo!(), // TODO
             Thing::Event(e) => e.name(),
             Thing::File(f) => f.name(),
             Thing::Group(g) => g.name(),
+            Thing::Image(i) => i.name(),
             Thing::InstantMessage(_i) => todo!(), // TODO
             Thing::Link(l) => l.name(),
             Thing::Person(p) => p.name(),

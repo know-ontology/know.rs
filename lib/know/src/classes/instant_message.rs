@@ -105,11 +105,11 @@ impl traits::ToJsonLd for InstantMessage {
     fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
         use serde_json::json;
         Ok(json!({
+            "@type": "InstantMessage",
             "@id": match self.id {
                 Some(ref id) => id.to_jsonld()?,
                 None => "_:message".into(),
             },
-            "@type": "InstantMessage",
             "from": self.from.to_jsonld()?,
             "to": self.to,
             "platform": self.platform,

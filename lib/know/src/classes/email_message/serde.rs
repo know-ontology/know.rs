@@ -18,11 +18,11 @@ impl crate::traits::ToJsonLd for EmailMessage {
     fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
         use serde_json::json;
         Ok(json!({
+            "@type": "EmailMessage",
             "@id": match self.id {
                 Some(ref id) => id.to_jsonld()?,
                 None => "_:message".into(),
             },
-            "@type": "EmailMessage",
             "date": self.date.to_jsonld()?,
             "from": self.from.iter().filter_map(|x| x.to_jsonld().ok()).collect::<Vec<_>>(),
             "sender": self.sender.as_ref().and_then(|x| x.to_jsonld().ok()),
