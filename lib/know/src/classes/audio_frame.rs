@@ -71,7 +71,7 @@ where
 {
     use base64::{Engine as _, engine::general_purpose::STANDARD};
     use serde::Serialize;
-    format!("data:image/l16;base64,{}", STANDARD.encode(data.as_ref())).serialize(ser)
+    format!("data:audio/l16;base64,{}", STANDARD.encode(data.as_ref())).serialize(ser)
 }
 
 #[cfg(feature = "serde")]
