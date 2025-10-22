@@ -27,6 +27,9 @@ pub struct Image {
         )
     )]
     pub data: Vec<u8>,
+
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
+    pub source: Option<String>,
 }
 
 pub trait ImageLike: ThingLike {}
@@ -55,6 +58,7 @@ impl crate::traits::ToJsonLd for Image {
             "width": self.width,
             "height": self.height,
             "data": serialize_data(&self.data, serde_json::value::Serializer)?,
+            "source": self.source,
         }))
     }
 }
@@ -106,6 +110,7 @@ mod tests {
             width: Some(800),
             height: Some(600),
             data: vec![255, 0, 0, 0, 255, 0, 0, 0, 255], // RGB pixel data
+            source: None,
         };
 
         assert_eq!(image.id, Some("_:test-image".to_string()));
@@ -121,6 +126,7 @@ mod tests {
             width: Some(100),
             height: Some(100),
             data: vec![1, 2, 3, 4, 5],
+            source: None,
         };
 
         let cloned = original.clone();
@@ -138,6 +144,7 @@ mod tests {
             width: Some(50),
             height: Some(50),
             data: vec![1, 2, 3],
+            source: None,
         };
 
         let image2 = Image {
@@ -145,6 +152,7 @@ mod tests {
             width: Some(50),
             height: Some(50),
             data: vec![1, 2, 3],
+            source: None,
         };
 
         let image3 = Image {
@@ -152,6 +160,7 @@ mod tests {
             width: Some(50),
             height: Some(50),
             data: vec![1, 2, 3],
+            source: None,
         };
 
         assert_eq!(image1, image2);
@@ -165,6 +174,7 @@ mod tests {
             width: Some(10),
             height: Some(10),
             data: vec![1],
+            source: None,
         };
 
         let image2 = Image {
@@ -172,6 +182,7 @@ mod tests {
             width: Some(10),
             height: Some(10),
             data: vec![1],
+            source: None,
         };
 
         assert!(image1 < image2);
@@ -185,6 +196,7 @@ mod tests {
             width: Some(32),
             height: Some(32),
             data: vec![255, 128, 0],
+            source: None,
         };
 
         let debug_str = format!("{:?}", image);
@@ -200,6 +212,7 @@ mod tests {
             width: None,
             height: None,
             data: vec![],
+            source: None,
         };
 
         let image_without_id = Image::default();
@@ -226,6 +239,7 @@ mod tests {
             width: Some(1000),
             height: Some(1000),
             data: large_data.clone(),
+            source: None,
         };
 
         assert_eq!(image.data.len(), 1000000);
@@ -240,6 +254,7 @@ mod tests {
             width: Some(640),
             height: None,
             data: vec![],
+            source: None,
         };
 
         let image_only_height = Image {
@@ -247,6 +262,7 @@ mod tests {
             width: None,
             height: Some(480),
             data: vec![],
+            source: None,
         };
 
         assert_eq!(image_only_width.width, Some(640));
@@ -263,6 +279,7 @@ mod tests {
             width: Some(800),
             height: Some(600),
             data: vec![255, 0, 0], // Simple RGB data
+            source: None,
         };
 
         let result = image.to_jsonld().unwrap();
@@ -284,6 +301,7 @@ mod tests {
             width: Some(100),
             height: Some(100),
             data: vec![0, 255, 0], // Green pixel
+            source: None,
         };
 
         let result = image.to_jsonld().unwrap();
@@ -304,6 +322,7 @@ mod tests {
             width: Some(0),
             height: Some(0),
             data: vec![],
+            source: None,
         };
 
         let result = image.to_jsonld().unwrap();
@@ -324,6 +343,7 @@ mod tests {
             width: Some(256),
             height: Some(256),
             data: vec![128, 64, 32, 16, 8, 4, 2, 1],
+            source: None,
         };
 
         // Serialize to JSON
@@ -346,6 +366,7 @@ mod tests {
             width: None,
             height: None,
             data: vec![],
+            source: None,
         };
 
         let json_value: Value = serde_json::to_value(&image).unwrap();
@@ -368,6 +389,7 @@ mod tests {
             width: Some(42),
             height: Some(24),
             data: vec![1, 2, 3],
+            source: None,
         };
 
         let json_value: Value = serde_json::to_value(&image).unwrap();
