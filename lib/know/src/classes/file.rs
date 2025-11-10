@@ -85,11 +85,12 @@ where
 {
     use base64::{Engine as _, engine::general_purpose::STANDARD};
     use serde::Deserialize;
-    let data_url = String::deserialize(deserializer)?;
-    let data = STANDARD
-        .decode(data_url.split(',').next_back().unwrap())
-        .map_err(serde::de::Error::custom)?;
-    Ok(data)
+    let data_uri = String::deserialize(deserializer)?;
+    let data = data_uri
+        .split(',')
+        .next_back()
+        .ok_or_else(|| serde::de::Error::custom("Invalid data URI format: missing comma"))?;
+    STANDARD.decode(data).map_err(serde::de::Error::custom)
 }
 
 #[cfg(test)]
