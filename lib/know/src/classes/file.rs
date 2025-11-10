@@ -21,35 +21,15 @@ pub struct File {
 
     pub size: u64,
 
-    pub content_type: Option<String>,
-
     #[cfg_attr(
         feature = "serde",
         serde(
-            skip_serializing_if = "FileData::is_empty",
+            skip_serializing_if = "Vec::is_empty",
             serialize_with = "serialize_data",
             deserialize_with = "deserialize_data"
         )
     )]
-    pub data: FileData,
-}
-
-#[derive(Debug, Clone, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
-pub struct FileData {
-    pub r#type: Option<String>,
     pub data: Vec<u8>,
-}
-
-impl FileData {
-    pub fn is_empty(&self) -> bool {
-        self.data.is_empty()
-    }
-}
-
-impl AsRef<FileData> for FileData {
-    fn as_ref(&self) -> &Self {
-        self
-    }
 }
 
 impl ThingLike for File {
@@ -71,18 +51,14 @@ impl FileLike for File {
 #[cfg(feature = "serde")]
 impl crate::traits::ToJsonLd for File {
     fn to_jsonld(&self) -> serde_json::Result<serde_json::Value> {
-        let data = if self.data.is_empty() {
-            None
-        } else {
-            Some(serialize_data(&self.data, serde_json::value::Serializer)?)
-        };
         Ok(serde_json::json!({
             "@type": "File",
             "@id": match self.id {
                 Some(ref id) => id.clone(),
                 None => "_:file".into(), // TODO: genid
             },
-            "data": data,
+            "size": self.size,
+            "data": serialize_data(&self.data, serde_json::value::Serializer)?,
         }))
     }
 }
@@ -90,63 +66,30 @@ impl crate::traits::ToJsonLd for File {
 #[cfg(feature = "serde")]
 fn serialize_data<T, S>(data: T, ser: S) -> std::result::Result<S::Ok, S::Error>
 where
-    T: AsRef<FileData>,
+    T: AsRef<Vec<u8>>,
     S: serde::Serializer,
 {
     use base64::{Engine as _, engine::general_purpose::STANDARD};
     use serde::Serialize;
-    let data = data.as_ref();
-
-    let data = if let Some(ref content_type) = data.r#type {
-        use base64::prelude::{BASE64_STANDARD, Engine as _};
-        let encoded = BASE64_STANDARD.encode(&data.data);
-        format!("data:{};base64,{}", content_type, encoded)
-    } else if let Ok(content) = std::str::from_utf8(&data.data) {
-        let content_type = "text/plain;charset=utf-8";
-        format!("data:{},{}", content_type, content)
-    } else {
-        let content_type = "application/octet-stream";
-        use base64::prelude::{BASE64_STANDARD, Engine as _};
-        let encoded = BASE64_STANDARD.encode(&data.data);
-        format!("data:{};base64,{}", content_type, encoded)
-    };
-
-    data.serialize(ser)
+    format!(
+        "data:application/octet-stream;base64,{}",
+        STANDARD.encode(data.as_ref())
+    )
+    .serialize(ser)
 }
 
 #[cfg(feature = "serde")]
-fn deserialize_data<'de, D>(deserializer: D) -> std::result::Result<FileData, D::Error>
+fn deserialize_data<'de, D>(deserializer: D) -> std::result::Result<Vec<u8>, D::Error>
 where
     D: serde::Deserializer<'de>,
 {
+    use base64::{Engine as _, engine::general_purpose::STANDARD};
     use serde::Deserialize;
-
     let data_url = String::deserialize(deserializer)?;
-
-    let (content_type, data) = data_url
-        .strip_prefix("data:")
-        .unwrap()
-        .split_once(",")
-        .unwrap();
-
-    let (content_type, is_base64) = if let Some(content_type) = content_type.strip_suffix(";base64")
-    {
-        (content_type, true)
-    } else {
-        (content_type, false)
-    };
-
-    let data = if is_base64 {
-        use base64::{Engine as _, engine::general_purpose::STANDARD};
-        STANDARD.decode(data).map_err(serde::de::Error::custom)?
-    } else {
-        data.into()
-    };
-
-    Ok(FileData {
-        r#type: (!content_type.is_empty()).then(|| content_type.into()),
-        data,
-    })
+    let data = STANDARD
+        .decode(data_url.split(',').next_back().unwrap())
+        .map_err(serde::de::Error::custom)?;
+    Ok(data)
 }
 
 #[cfg(test)]
@@ -184,10 +127,7 @@ mod tests {
     fn test_to_jsonld_with_id() {
         let file = File {
             id: Some("_:test-file-123".to_string()),
-            data: FileData {
-                r#type: None,
-                data: vec![255, 0, 0],
-            },
+            data: vec![255, 0, 0],
             ..Default::default()
         };
 
@@ -208,7 +148,10 @@ mod tests {
         let result = file.to_jsonld().unwrap();
         assert_eq!(result["@type"], "File");
         assert_eq!(result["@id"], "_:file");
-        assert_eq!(result["data"].as_str(), None);
+        assert_eq!(
+            result["data"].as_str(),
+            Some("data:application/octet-stream;base64,")
+        );
     }
 
     #[cfg(feature = "serde")]
@@ -218,11 +161,7 @@ mod tests {
 
         let original = File {
             id: Some("_:roundtrip-test".to_string()),
-            data: FileData {
-                r#type: Some("application/octet-stream".into()),
-
-                data: vec![128, 64, 32, 16, 8, 4, 2, 1],
-            },
+            data: vec![128, 64, 32, 16, 8, 4, 2, 1],
             ..Default::default()
         };
 
@@ -260,10 +199,7 @@ mod tests {
 
         let file = File {
             id: Some("_:populated".to_string()),
-            data: FileData {
-                r#type: None,
-                data: vec![1, 2, 3],
-            },
+            data: vec![1, 2, 3],
             ..Default::default()
         };
 
@@ -277,7 +213,7 @@ mod tests {
         assert_eq!(json_obj["@id"], "_:populated");
         assert_eq!(
             json_obj["data"],
-            serde_json::json!("data:text/plain;charset=utf-8,\u{1}\u{2}\u{3}")
+            serde_json::json!("data:application/octet-stream;base64,AQID")
         );
     }
 
@@ -293,6 +229,6 @@ mod tests {
 
         let file: File = serde_json::from_value(json).unwrap();
         assert_eq!(file.id, Some("_:file".to_string()));
-        assert_eq!(file.data.data, vec![1, 2, 3]);
+        assert_eq!(file.data, vec![1, 2, 3]);
     }
 }
