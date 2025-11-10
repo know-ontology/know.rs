@@ -6,6 +6,7 @@ use crate::{
     datatypes::DateTime,
     formatters::{DisplayConcise, DisplayDetailed, DisplayInline, DisplayJsonLd, DisplayOneliner},
     prelude::*,
+    traits::ToJsonLd,
 };
 use alloc::fmt;
 
@@ -52,6 +53,16 @@ pub enum FileType {
     },
 }
 
+impl FileType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            FileType::Regular => "regular",
+            FileType::Directory { .. } => "directory",
+            FileType::Symlink { .. } => "symlink",
+        }
+    }
+}
+
 impl FileMetadata {
     pub fn inline(&self) -> DisplayInline<'_, Self> {
         DisplayInline(self)
@@ -76,19 +87,22 @@ impl FileMetadata {
 
 impl fmt::Display for DisplayInline<'_, FileMetadata> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "📄 {}", self.0.id().unwrap_or("<unknown file>"))
+        write!(f, "📄: {}", self.0.id().unwrap_or("<unknown file>"))
     }
 }
 
 impl fmt::Display for DisplayOneliner<'_, FileMetadata> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "📄 {}", self.0.id().unwrap_or("<unknown file>"))?;
-        let r#type = match &self.0.filetype {
-            FileType::Regular => "regular",
-            FileType::Directory { .. } => "directory",
-            FileType::Symlink { .. } => "symlink",
-        };
-        write!(f, " is a {type} file")?;
+        write!(f, "📄: {}", self.0.id().unwrap_or("<unknown file>"))?;
+        write!(f, "  ({})", self.0.filetype.as_str())?;
+        Ok(())
+    }
+}
+
+impl fmt::Display for DisplayConcise<'_, FileMetadata> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "📄: {}", self.0.id().unwrap_or("<unknown file>"))?;
+        write!(f, " is a {} file", self.0.filetype.as_str())?;
         if let Some(ref size) = self.0.size {
             write!(f, " with size {size}")?;
         }
@@ -96,6 +110,32 @@ impl fmt::Display for DisplayOneliner<'_, FileMetadata> {
             write!(f, ", modified at {}", ts.inline())?;
         }
         Ok(())
+    }
+}
+
+impl fmt::Display for DisplayDetailed<'_, FileMetadata> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "📄: {}", self.0.id().unwrap_or("<unknown file>"))?;
+        if let Some(ref size) = self.0.size {
+            writeln!(f, "\tSize: {size}")?;
+        }
+        if let Some(ref ts) = self.0.modification_date {
+            writeln!(f, "\tModification date: {}", ts.inline())?;
+        }
+        if let Some(ref owner) = self.0.owner {
+            writeln!(f, "\tOwner: {owner}")?;
+        }
+        if let Some(ref group) = self.0.group {
+            writeln!(f, "\tGroup: {group}")?;
+        }
+        writeln!(f, "\tType: {}", self.0.filetype.as_str())?;
+        Ok(())
+    }
+}
+
+impl fmt::Display for DisplayJsonLd<'_, FileMetadata> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.0.to_jsonld().unwrap())
     }
 }
 
