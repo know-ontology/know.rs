@@ -1,7 +1,13 @@
 // This is free and unencumbered software released into the public domain.
 
 use super::ThingLike;
-use crate::{datatypes::DateTime, prelude::*};
+
+use crate::{
+    datatypes::DateTime,
+    formatters::{DisplayConcise, DisplayDetailed, DisplayInline, DisplayJsonLd, DisplayOneliner},
+    prelude::*,
+};
+use alloc::fmt;
 
 #[derive(Debug, Clone, Default, Hash, Eq, PartialEq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -44,6 +50,53 @@ pub enum FileType {
     Symlink {
         target: String,
     },
+}
+
+impl FileMetadata {
+    pub fn inline(&self) -> DisplayInline<'_, Self> {
+        DisplayInline(self)
+    }
+
+    pub fn oneliner(&self) -> DisplayOneliner<'_, Self> {
+        DisplayOneliner(self)
+    }
+
+    pub fn concise(&self) -> DisplayConcise<'_, Self> {
+        DisplayConcise(self)
+    }
+
+    pub fn detailed(&self) -> DisplayDetailed<'_, Self> {
+        DisplayDetailed(self)
+    }
+
+    pub fn jsonld(&self) -> DisplayJsonLd<'_, Self> {
+        DisplayJsonLd(self)
+    }
+}
+
+impl fmt::Display for DisplayInline<'_, FileMetadata> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "📄 {}", self.0.id().unwrap_or("<unknown file>"))
+    }
+}
+
+impl fmt::Display for DisplayOneliner<'_, FileMetadata> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "📄 {}", self.0.id().unwrap_or("<unknown file>"))?;
+        let r#type = match &self.0.filetype {
+            FileType::Regular => "regular",
+            FileType::Directory { .. } => "directory",
+            FileType::Symlink { .. } => "symlink",
+        };
+        write!(f, " is a {type} file")?;
+        if let Some(ref size) = self.0.size {
+            write!(f, " with size {size}")?;
+        }
+        if let Some(ref ts) = self.0.modification_date {
+            write!(f, ", modified at {}", ts.inline())?;
+        }
+        Ok(())
+    }
 }
 
 impl ThingLike for FileMetadata {
