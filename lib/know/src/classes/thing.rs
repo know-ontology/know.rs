@@ -15,6 +15,7 @@ pub enum Thing {
     EmailMessage(EmailMessage),
     Event(Event),
     File(File),
+    FileMetadata(FileMetadata),
     Group(Group),
     Image(Image),
     InstantMessage(InstantMessage),
@@ -34,6 +35,7 @@ impl Debug for Thing {
             Thing::EmailMessage(x) => x.fmt(f),
             Thing::Event(x) => x.fmt(f),
             Thing::File(x) => x.fmt(f),
+            Thing::FileMetadata(x) => x.fmt(f),
             Thing::Group(x) => x.fmt(f),
             Thing::Image(i) => i.fmt(f),
             Thing::InstantMessage(x) => x.fmt(f),
@@ -57,6 +59,7 @@ impl ThingLike for Thing {
             Thing::EmailMessage(_e) => todo!(), // TODO
             Thing::Event(e) => e.id(),
             Thing::File(f) => f.id(),
+            Thing::FileMetadata(f) => f.id(),
             Thing::Group(g) => g.id(),
             Thing::Image(i) => i.id(),
             Thing::InstantMessage(i) => i.id(),
@@ -76,6 +79,7 @@ impl ThingLike for Thing {
             Thing::EmailMessage(_e) => todo!(), // TODO
             Thing::Event(e) => e.name(),
             Thing::File(f) => f.name(),
+            Thing::FileMetadata(f) => f.name(),
             Thing::Group(g) => g.name(),
             Thing::Image(i) => i.name(),
             Thing::InstantMessage(_i) => todo!(), // TODO
