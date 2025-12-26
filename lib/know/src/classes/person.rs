@@ -42,23 +42,28 @@ pub trait PersonLike: ThingLike {
 #[cfg_attr(feature = "serde", cfg_eval::cfg_eval, serde_as)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Person {
-    pub name: PersonName,
+    pub name: PersonName, // FIXME: Option<PersonName>
 
     #[cfg_attr(
         feature = "serde",
-        serde(default, alias = "nickname"),
+        serde(default, alias = "nickname", skip_serializing_if = "Vec::is_empty"),
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
     pub nicknames: Vec<PersonName>,
 
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub age: Option<Age>,
 
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub birth: Option<EventRef>,
 
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub death: Option<EventRef>,
 
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub father: Option<PersonRef>,
 
+    #[cfg_attr(feature = "serde", serde(skip_serializing_if = "Option::is_none"))]
     pub mother: Option<PersonRef>,
 
     #[cfg_attr(
@@ -69,7 +74,8 @@ pub struct Person {
             alias = "brothers",
             alias = "brother",
             alias = "sisters",
-            alias = "sister"
+            alias = "sister",
+            skip_serializing_if = "Vec::is_empty"
         ),
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
@@ -77,49 +83,61 @@ pub struct Person {
 
     #[cfg_attr(
         feature = "serde",
-        serde(default, alias = "spouse", alias = "husband", alias = "wife"),
+        serde(
+            default,
+            alias = "spouse",
+            alias = "husband",
+            alias = "wife",
+            skip_serializing_if = "Vec::is_empty"
+        ),
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
     pub spouses: Vec<PersonRef>,
 
     #[cfg_attr(
         feature = "serde",
-        serde(default, alias = "partner", alias = "boyfriend", alias = "girlfriend"),
+        serde(
+            default,
+            alias = "partner",
+            alias = "boyfriend",
+            alias = "girlfriend",
+            skip_serializing_if = "Vec::is_empty"
+        ),
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
     pub partners: Vec<PersonRef>,
 
     #[cfg_attr(
         feature = "serde",
-        serde(default, alias = "child"),
+        serde(default, alias = "child", skip_serializing_if = "Vec::is_empty"),
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
     pub children: Vec<PersonRef>,
 
     #[cfg_attr(
         feature = "serde",
-        serde(default, alias = "colleague"),
+        serde(default, alias = "colleague", skip_serializing_if = "Vec::is_empty"),
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
     pub colleagues: Vec<PersonRef>,
 
     #[cfg_attr(
         feature = "serde",
-        serde(default),
+        serde(default, skip_serializing_if = "Vec::is_empty"),
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
     pub knows: Vec<PersonRef>,
 
     #[cfg_attr(
         feature = "serde",
-        serde(default, alias = "email"),
+        serde(default, alias = "email", skip_serializing_if = "Vec::is_empty"),
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
     pub emails: Vec<EmailAddress>,
 
     #[cfg_attr(
         feature = "serde",
-        serde(default, alias = "phone"),
+        serde(default, alias = "phone", skip_serializing_if = "Vec::is_empty"),
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
     pub phones: Vec<PhoneNumber>,
