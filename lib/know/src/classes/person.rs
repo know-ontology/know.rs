@@ -36,12 +36,22 @@ pub trait PersonLike: ThingLike {
     fn emails(&self) -> &Vec<EmailAddress>;
     fn phone(&self) -> Option<&PhoneNumber>;
     fn phones(&self) -> &Vec<PhoneNumber>;
+    fn account(&self) -> Option<&String>;
+    fn accounts(&self) -> &Vec<String>;
+    fn link(&self) -> Option<&String>;
+    fn links(&self) -> &Vec<String>;
 }
 
 #[derive(Debug, Clone, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", cfg_eval::cfg_eval, serde_as)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct Person {
+    #[cfg_attr(
+        feature = "serde",
+        serde(rename = "@id", skip_serializing_if = "Option::is_none")
+    )]
+    pub id: Option<String>,
+
     pub name: PersonName, // FIXME: Option<PersonName>
 
     #[cfg_attr(
@@ -141,11 +151,25 @@ pub struct Person {
         serde_as(as = "serde_with::OneOrMany<_>")
     )]
     pub phones: Vec<PhoneNumber>,
+
+    #[cfg_attr(
+        feature = "serde",
+        serde(default, alias = "account", skip_serializing_if = "Vec::is_empty"),
+        serde_as(as = "serde_with::OneOrMany<_>")
+    )]
+    pub accounts: Vec<String>, // TODO: datatype
+
+    #[cfg_attr(
+        feature = "serde",
+        serde(default, alias = "link", skip_serializing_if = "Vec::is_empty"),
+        serde_as(as = "serde_with::OneOrMany<_>")
+    )]
+    pub links: Vec<String>, // TODO: datatype
 }
 
 impl ThingLike for Person {
     fn id(&self) -> Option<&str> {
-        None
+        self.id.as_ref().map(|s| s.as_ref())
     }
 
     fn name(&self) -> Option<&Name> {
@@ -247,6 +271,22 @@ impl PersonLike for Person {
     fn phones(&self) -> &Vec<PhoneNumber> {
         self.phones.as_ref()
     }
+
+    fn account(&self) -> Option<&String> {
+        self.accounts.first()
+    }
+
+    fn accounts(&self) -> &Vec<String> {
+        self.accounts.as_ref()
+    }
+
+    fn link(&self) -> Option<&String> {
+        self.links.first()
+    }
+
+    fn links(&self) -> &Vec<String> {
+        self.links.as_ref()
+    }
 }
 
 impl FromStr for Person {
@@ -266,7 +306,7 @@ pub struct PersonRef(pub Rc<Person>);
 
 impl ThingLike for PersonRef {
     fn id(&self) -> Option<&str> {
-        None
+        self.0.id()
     }
 
     fn name(&self) -> Option<&Name> {
