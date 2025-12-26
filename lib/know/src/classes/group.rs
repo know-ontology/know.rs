@@ -7,6 +7,10 @@ pub trait GroupLike: ThingLike {}
 
 #[derive(Debug, Clone, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde",
+    serde(default, tag = "@type", rename_all = "camelCase")
+)]
 pub struct Group {
     pub name: Name,
 }

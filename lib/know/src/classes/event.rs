@@ -11,6 +11,10 @@ pub trait EventLike: ThingLike {}
 
 #[derive(Debug, Clone, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde",
+    serde(default, tag = "@type", rename_all = "camelCase")
+)]
 pub struct Event {
     pub name: Option<Name>,
 

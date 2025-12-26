@@ -12,7 +12,10 @@ use alloc::fmt;
 #[derive(Clone, Debug, Default, Eq, Hash, Ord, PartialEq, PartialOrd)]
 #[cfg_attr(feature = "serde", cfg_eval::cfg_eval, serde_with::serde_as)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
-#[cfg_attr(feature = "serde", serde(default, rename_all = "camelCase"))]
+#[cfg_attr(
+    feature = "serde",
+    serde(default, tag = "@type", rename_all = "camelCase")
+)]
 pub struct EmailMessage {
     /// See: https://datatracker.ietf.org/doc/html/draft-ietf-emailcore-rfc5322bis-12#name-the-origination-date-field
     pub date: DateTime,

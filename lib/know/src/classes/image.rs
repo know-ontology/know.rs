@@ -5,6 +5,10 @@ use crate::prelude::*;
 
 #[derive(Clone, Debug, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde",
+    serde(default, tag = "@type", rename_all = "camelCase")
+)]
 pub struct Image {
     #[cfg_attr(
         feature = "serde",

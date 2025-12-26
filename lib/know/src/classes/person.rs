@@ -45,6 +45,10 @@ pub trait PersonLike: ThingLike {
 #[derive(Debug, Clone, Default, Eq, Hash, PartialEq, PartialOrd, Ord)]
 #[cfg_attr(feature = "serde", cfg_eval::cfg_eval, serde_as)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
+#[cfg_attr(
+    feature = "serde",
+    serde(default, tag = "@type", rename_all = "camelCase")
+)]
 pub struct Person {
     #[cfg_attr(
         feature = "serde",
