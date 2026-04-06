@@ -352,7 +352,7 @@ dependencies = [
 
 [[package]]
 name = "know"
-version = "0.2.12"
+version = "0.2.13"
 dependencies = [
  "base64",
  "cfg_eval",
@@ -375,7 +375,7 @@ dependencies = [
 
 [[package]]
 name = "know_yaml"
-version = "0.2.12"
+version = "0.2.13"
 dependencies = [
  "know",
  "serde",
