@@ -16,6 +16,12 @@ pub trait EventLike: ThingLike {}
     serde(default, tag = "@type", rename_all = "camelCase")
 )]
 pub struct Event {
+    #[cfg_attr(
+        feature = "serde",
+        serde(rename = "@id", skip_serializing_if = "Option::is_none")
+    )]
+    pub id: Option<String>,
+
     pub name: Option<Name>,
 
     pub start: Option<DateTime>,
