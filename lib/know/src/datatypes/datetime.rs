@@ -74,7 +74,16 @@ impl FromStr for DateTime {
     type Err = jiff::Error;
 
     fn from_str(input: &str) -> Result<Self, Self::Err> {
-        jiff::Zoned::strptime("%FT%T.%3f%:z", input).map(|x| x.into()) // ISO 8601
+        if input.ends_with('Z') {
+            let without_z = &input[..input.len() - 1];
+            jiff::civil::DateTime::strptime("%FT%T.%f", without_z)
+                .or_else(|_| jiff::civil::DateTime::strptime("%FT%T", without_z))
+                .and_then(|dt| dt.to_zoned(jiff::tz::TimeZone::UTC))
+        } else {
+            jiff::Zoned::strptime("%FT%T.%f%:z", input)
+                .or_else(|_| jiff::Zoned::strptime("%FT%T%:z", input))
+        }
+        .map(|x| x.into())
     }
 }
 
