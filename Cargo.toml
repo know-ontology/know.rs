@@ -23,7 +23,18 @@ publish = true
 [workspace.dependencies]
 know = { path = "lib/know" }
 know_yaml = { path = "lib/know_yaml" }
-serde = { version = "1", features = ["derive"] }
+serde = { version = "1", default-features = false, features = [
+    "alloc",
+    "derive",
+    "rc",
+] }
+serde_json = { version = "1", default-features = false, features = [
+    "alloc",
+] }
+serde_with = { version = "3.18", default-features = false, features = [
+    "alloc",
+    "macros",
+] }
 tldr = { version = "0.1", package = "tldr-traits", default-features = false, features = [
     "builder",
 ] }

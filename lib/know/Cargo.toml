@@ -72,18 +72,9 @@ imap-proto = { version = "0.16", default-features = false, optional = true }
 mail-parser = { version = "0.11", default-features = false, optional = true }
 maildir = { version = "0.6", default-features = false, optional = true }
 mailparse = { version = "0.14", default-features = false, optional = true }
-serde = { version = "1", default-features = false, features = [
-    "alloc",
-    "derive",
-    "rc",
-], optional = true }
-serde_json = { version = "1", default-features = false, features = [
-    "alloc",
-], optional = true }
-serde_with = { version = "3.14", default-features = false, features = [
-    "alloc",
-    "macros",
-], optional = true }
+serde = { workspace = true, optional = true }
+serde_json = { workspace = true, optional = true }
+serde_with = { workspace = true, optional = true }
 tldr = { workspace = true, optional = true }
 zerocopy = { version = "0.8", default-features = false, features = [
     "alloc",
