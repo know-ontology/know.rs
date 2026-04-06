@@ -12,7 +12,7 @@ impl InstantMessageId {
         &self.0
     }
 
-    pub fn inline(&self) -> DisplayInline<InstantMessageId> {
+    pub fn inline(&self) -> DisplayInline<'_, InstantMessageId> {
         DisplayInline(self)
     }
 }

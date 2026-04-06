@@ -66,27 +66,27 @@ pub struct EmailMessage {
 }
 
 impl EmailMessage {
-    pub fn inline(&self) -> DisplayInline<EmailMessage> {
+    pub fn inline(&self) -> DisplayInline<'_, EmailMessage> {
         DisplayInline(self)
     }
 
-    pub fn oneliner(&self) -> DisplayOneliner<EmailMessage> {
+    pub fn oneliner(&self) -> DisplayOneliner<'_, EmailMessage> {
         DisplayOneliner(self)
     }
 
-    pub fn concise(&self) -> DisplayConcise<EmailMessage> {
+    pub fn concise(&self) -> DisplayConcise<'_, EmailMessage> {
         DisplayConcise(self)
     }
 
-    pub fn detailed(&self) -> DisplayDetailed<EmailMessage> {
+    pub fn detailed(&self) -> DisplayDetailed<'_, EmailMessage> {
         DisplayDetailed(self)
     }
 
-    pub fn mime(&self) -> DisplayMime<EmailMessage> {
+    pub fn mime(&self) -> DisplayMime<'_, EmailMessage> {
         DisplayMime(self)
     }
 
-    pub fn jsonld(&self) -> DisplayJsonLd<EmailMessage> {
+    pub fn jsonld(&self) -> DisplayJsonLd<'_, EmailMessage> {
         DisplayJsonLd(self)
     }
 }

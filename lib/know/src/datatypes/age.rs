@@ -15,7 +15,7 @@ where
         self.0.into()
     }
 
-    pub fn inline(&self) -> DisplayInline<Age<T>> {
+    pub fn inline(&self) -> DisplayInline<'_, Age<T>> {
         DisplayInline(self)
     }
 }

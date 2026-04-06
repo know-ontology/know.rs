@@ -12,7 +12,7 @@ impl PhoneNumber {
         &self.0
     }
 
-    pub fn inline(&self) -> DisplayInline<PhoneNumber> {
+    pub fn inline(&self) -> DisplayInline<'_, PhoneNumber> {
         DisplayInline(self)
     }
 }

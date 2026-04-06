@@ -20,7 +20,7 @@ impl InstantMessageHandle {
         }
     }
 
-    pub fn inline(&self) -> DisplayInline<InstantMessageHandle> {
+    pub fn inline(&self) -> DisplayInline<'_, InstantMessageHandle> {
         DisplayInline(self)
     }
 }

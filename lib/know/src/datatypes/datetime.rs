@@ -26,7 +26,7 @@ impl DateTime {
         Ok(self.0.until(other.zoned_diff())?.into())
     }
 
-    pub(crate) fn zoned_diff(&self) -> jiff::ZonedDifference {
+    pub(crate) fn zoned_diff(&self) -> jiff::ZonedDifference<'_> {
         jiff::ZonedDifference::from(&self.0)
             .smallest(jiff::Unit::Second)
             .largest(jiff::Unit::Year)
@@ -36,11 +36,11 @@ impl DateTime {
         &self.0
     }
 
-    pub fn inline(&self) -> DisplayInline<DateTime> {
+    pub fn inline(&self) -> DisplayInline<'_, DateTime> {
         DisplayInline(self)
     }
 
-    pub fn mime(&self) -> DisplayMime<DateTime> {
+    pub fn mime(&self) -> DisplayMime<'_, DateTime> {
         DisplayMime(self)
     }
 }

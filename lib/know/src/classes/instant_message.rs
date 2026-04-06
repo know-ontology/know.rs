@@ -23,23 +23,23 @@ pub struct InstantMessage {
 }
 
 impl InstantMessage {
-    pub fn inline(&self) -> DisplayInline<InstantMessage> {
+    pub fn inline(&self) -> DisplayInline<'_, InstantMessage> {
         DisplayInline(self)
     }
 
-    pub fn oneliner(&self) -> DisplayOneliner<InstantMessage> {
+    pub fn oneliner(&self) -> DisplayOneliner<'_, InstantMessage> {
         DisplayOneliner(self)
     }
 
-    pub fn concise(&self) -> DisplayConcise<InstantMessage> {
+    pub fn concise(&self) -> DisplayConcise<'_, InstantMessage> {
         DisplayConcise(self)
     }
 
-    pub fn detailed(&self) -> DisplayDetailed<InstantMessage> {
+    pub fn detailed(&self) -> DisplayDetailed<'_, InstantMessage> {
         DisplayDetailed(self)
     }
 
-    pub fn jsonld(&self) -> DisplayJsonLd<InstantMessage> {
+    pub fn jsonld(&self) -> DisplayJsonLd<'_, InstantMessage> {
         DisplayJsonLd(self)
     }
 }

@@ -12,7 +12,7 @@ impl PersonName {
         &self.0
     }
 
-    pub fn inline(&self) -> DisplayInline<PersonName> {
+    pub fn inline(&self) -> DisplayInline<'_, PersonName> {
         DisplayInline(self)
     }
 }

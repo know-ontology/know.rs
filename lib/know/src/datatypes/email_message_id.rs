@@ -13,7 +13,7 @@ impl EmailMessageId {
         &self.0
     }
 
-    pub fn inline(&self) -> DisplayInline<EmailMessageId> {
+    pub fn inline(&self) -> DisplayInline<'_, EmailMessageId> {
         DisplayInline(self)
     }
 }

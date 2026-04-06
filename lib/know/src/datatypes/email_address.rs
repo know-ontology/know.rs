@@ -13,7 +13,7 @@ impl EmailAddress {
         &self.0
     }
 
-    pub fn inline(&self) -> DisplayInline<EmailAddress> {
+    pub fn inline(&self) -> DisplayInline<'_, EmailAddress> {
         DisplayInline(self)
     }
 }

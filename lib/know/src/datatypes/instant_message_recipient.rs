@@ -27,7 +27,7 @@ impl InstantMessageRecipient {
         }
     }
 
-    pub fn inline(&self) -> DisplayInline<InstantMessageRecipient> {
+    pub fn inline(&self) -> DisplayInline<'_, InstantMessageRecipient> {
         DisplayInline(self)
     }
 
